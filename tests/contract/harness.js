@@ -137,6 +137,7 @@ function makeNetwork(scenario, onCall) {
     if (p.meta === 'userinfo') return 'local:userinfo';
     if (p.rvdir === 'newer' && p.prop === 'revisions') return 'local:creation';
     if (p.prop === 'info|revisions|pageprops') return 'local:page';
+    if (p.prop === 'info|pageprops|revisions') return 'local:current';
     if (p.revids) return 'wp:revision';
     if (p.list === 'logevents') return `wp:log:${p.letitle}:${p.letype}`;
     if (p.redirects === 1 && !p.prop && call.endpoint === 'local') return 'local:redirect';
@@ -170,6 +171,7 @@ function makeNetwork(scenario, onCall) {
     const p = call.params;
     if (key === 'local:creation') return { data: buildLocalCreation(scenario) };
     if (key === 'local:page') return { data: buildLocalPage(scenario) };
+    if (key === 'local:current') return { data: buildLocalCurrent(scenario) };
     if (key === 'local:redirect') return { data: buildLocalRedirect(scenario) };
     if (key === 'wp:revision') return { data: buildRevision(scenario) };
     if (key.startsWith('wp:title:')) return { data: buildWikiTitle(scenario, p.titles) };
@@ -217,6 +219,22 @@ function buildLocalPage(s) {
     ns: 0,
     title: s.pageName,
     revisions: [{ revid: 11, size: local.size || 100, '*': local.wikitext || '' }],
+  };
+  if (local.redirect) page.redirect = '';
+  if (local.disambiguation) page.pageprops = { disambiguation: '' };
+  return { query: { pageids: ['10'], pages: { '10': page } } };
+}
+
+// השאילתה הקלה: מצב הדף, גודלו וזמן יצירתו, בלי תוכן.
+function buildLocalCurrent(s) {
+  if (s.local && s.local.missing) return buildLocalPage(s);
+  const local = s.local || {};
+  const page = {
+    pageid: 10,
+    ns: 0,
+    title: s.pageName,
+    length: local.size || 100,
+    revisions: [{ timestamp: local.creationTs || '2026-01-01T00:00:00Z' }],
   };
   if (local.redirect) page.redirect = '';
   if (local.disambiguation) page.pageprops = { disambiguation: '' };
@@ -311,6 +329,7 @@ function classifyStage(call) {
   if (call.endpoint === 'wikidata') return 'wikidata';
   if (call.endpoint === 'local' && p.rvdir === 'newer' && p.prop === 'revisions') return 'bootstrap';
   if (call.endpoint === 'local' && p.prop === 'info|revisions|pageprops') return 'bootstrap';
+  if (call.endpoint === 'local' && p.prop === 'info|pageprops|revisions') return 'bootstrap';
   if (call.endpoint === 'wp' && p.revids) return 'revision';
   if (call.endpoint === 'wp' && p.list === 'logevents') return 'log';
   if (call.endpoint === 'wp' && p.titles) return 'title';
@@ -540,7 +559,7 @@ async function runCoreScenario(corePath, scenario, timeoutMs = 1000) {
     onRetry() {},
   });
 
-  const run = core.run(deriveMechalolTitle(scenario.pageName), scenario.pageName)
+  const run = core.run(deriveMechalolTitle(scenario.pageName), scenario.pageName, scenario.pageFields || null)
     .then((outcome) => {
       recording = false;
       const result = outcome.result;

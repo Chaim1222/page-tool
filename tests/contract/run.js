@@ -38,6 +38,20 @@ function snapshotPath(id) {
   return path.join(__dirname, 'snapshots', `${id}.json`);
 }
 
+// שדות התבנית כפי שהדף היה מציג אותם, מתוך הוויקיטקסט של התרחיש.
+function fieldsOf(wikitext) {
+  const fields = { דף: null, גרסה: null, פריט: null };
+  const m = /\{\{מיון ויקיפדיה([^}]*)\}\}/.exec(wikitext || '');
+  if (m) {
+    for (const part of m[1].split('|').slice(1)) {
+      const i = part.indexOf('=');
+      const key = part.slice(0, i).trim();
+      if (key in fields) fields[key] = part.slice(i + 1).trim();
+    }
+  }
+  return fields;
+}
+
 function same(a, b) {
   return JSON.stringify(a) === JSON.stringify(b);
 }
@@ -167,6 +181,24 @@ async function main() {
       }
     }
     if (failed) process.exitCode = 1;
+  }
+
+  // אותם תרחישים כשהדף מציג את שדות התבנית: הליבה שולחת שאילתה קלה
+  // במקום לשלוף את הוויקיטקסט, וההכרעה חייבת להיות זהה.
+  if (toolTarget.type === 'core' && !args.update) {
+    for (const scenario of selected) {
+      if (Object.keys(scenario.failures || {}).some((k) => k.startsWith('local:'))) continue;
+      const withFields = { ...scenario, pageFields: fieldsOf(scenario.local && scenario.local.wikitext) };
+      const out = await runCoreScenario(toolTarget.path, withFields);
+      const expected = actual.get(scenario.id);
+      if (!expected || !same({ ...out, calls: null }, { ...expected, calls: null })) {
+        console.error(`DIFF (fields from page) ${scenario.id}`);
+        console.error('Actual:', JSON.stringify({ ...out, calls: null }, null, 2));
+        process.exitCode = 1;
+      } else {
+        console.log(`PASS (fields from page) ${scenario.id}`);
+      }
+    }
   }
 
   if (args.compare) {

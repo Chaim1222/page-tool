@@ -5,6 +5,20 @@
   "result": {
     "from": "ישן",
     "moveLog": [],
+    "page": {
+      "ns": 0,
+      "pageid": 30,
+      "pageprops": {
+        "disambiguation": ""
+      },
+      "revisions": [
+        {
+          "revid": 301,
+          "size": 200
+        }
+      ],
+      "title": "חדש"
+    },
     "revid": "101",
     "status": "renamed",
     "targetIsDisambig": true,

@@ -109,6 +109,7 @@ mw.loader.using("mediawiki.util").then(function () {
       },
       sizeWikiEqual: "ויקיפדיה: זהה",
       sizeNotChecked: "השוואת הגודל: לא נבדקה",
+      matchRedirect: "✓ ההפניה תואמת לוויקיפדיה",
       assetLoadFailed: "לא ניתן לטעון את משאבי הכרטיס. רענן את הדף ונסה שוב.",
       detailsLoadFailed: "לא ניתן לטעון את פרטי הכרטיס. סגור ופתח שוב את הפרטים כדי לנסות מחדש.",
       logFloorUnchecked:
@@ -298,6 +299,7 @@ mw.loader.using("mediawiki.util").then(function () {
         runPageCheck: runPageCheck,
         addEnglishLink: addEnglishLink,
         showFoundSize: showFoundSize,
+        showMatchIndicator: showMatchIndicator,
         getOwnFields: core.getOwnFields,
         getLocalCreationTs: core.getLocalCreationTs,
         getLocalCreationFailed: core.getLocalCreationFailed,
@@ -730,16 +732,38 @@ mw.loader.using("mediawiki.util").then(function () {
       var $redirects = makeRedirectsTrigger(shownTitle);
       if ($redirects) $wrap.append($redirects);
 
+      placeIndicator($wrap);
+    }
+
+    function placeIndicator($el) {
       isMobileView
-        ? $(".tagline").append($wrap)
-        : $(".mw-indicators").append(
-            $("<div>", { class: "mw-indicator" }).append($wrap)
-          );
+        ? $(".tagline").append($el)
+        : $(".mw-indicators").append($("<div>", { class: "mw-indicator" }).append($el));
+    }
+
+    // סימן ירוק במקום המחוון, כשהדף במכלול כבר תואם לוויקיפדיה.
+    function showMatchIndicator() {
+      ensureStyles();
+      placeIndicator($("<span>", { class: "hmk-diff hmk-diff-pos", dir: "rtl", text: STR.matchRedirect }));
     }
 
     // ==================================================================
     // 6. הפעלה
     // ==================================================================
+    // שדות התבנית "מיון ויקיפדיה" כפי שהדף מציג אותם. אם אף אחד מהם אינו
+    // בדף (אין תבנית, או דף הפניה), null - והליבה קוראת את הוויקיטקסט.
+    function pageTemplateFields() {
+      var ids = { דף: "wikiPageName", גרסה: "wikiRevid", פריט: "qid" };
+      var fields = {};
+      var found = false;
+      Object.keys(ids).forEach(function (name) {
+        var el = document.getElementById(ids[name]);
+        fields[name] = el ? el.textContent.trim() : null;
+        if (el) found = true;
+      });
+      return found ? fields : null;
+    }
+
     function runPageCheck() {
       if (isMissingPage) {
         runMissingPageCheck();
@@ -750,13 +774,20 @@ mw.loader.using("mediawiki.util").then(function () {
 
       ensureCore()
         .then(function (activeCore) {
-          return activeCore.run(PageName, pageName);
+          return activeCore.run(PageName, pageName, pageTemplateFields());
         })
         .then(function (outcome) {
           var result = outcome.result;
+          // פירושונים בשני האתרים: כמו ערך רגיל - מחוון גודל ו"מאז הייבוא".
+          if (outcome.localStateMatched && result.status === "disambiguation") {
+            return renderResultWhenReady(
+              Object.assign({}, result, { status: "found", localStateMatched: false })
+            );
+          }
           if (outcome.localStateMatched) {
-            // מצב הדף כבר תואם, ולכן אין להציע פעולות. אם יש אזהרה על
-            // מסלול הזיהוי, הליבה מסמנת אותה והתצוגה נשארת גלויה ללא פעולות.
+            // הפניה לאותו יעד כמו בוויקיפדיה: סימן ירוק, בלי פעולות. אם יש
+            // אזהרה על מסלול הזיהוי, היא מוצגת בנוסף.
+            showMatchIndicator();
             if (
               result.revidDeletedNotice ||
               (result.sourceFailures && result.sourceFailures.length)

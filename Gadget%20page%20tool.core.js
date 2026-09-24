@@ -429,8 +429,7 @@
     //    שינוי-שם נמדד מול שדה דף= (מצב הכותרת בסנכרון האחרון), לא מול
     //    הכותרת המכלולאית - כדי למנוע התרעות-שווא מהבדל-שמות חוצה-אתרים
     // ==================================================================
-    function resolveWikipediaState(mechalolTitle, wikitext) {
-      var fields = extractTemplateFields(wikitext);
+    function resolveWikipediaState(mechalolTitle, fields) {
       var baseline = fields["דף"] ? fields["דף"].trim() : null;
       var failures = [];
 
@@ -684,6 +683,7 @@
             return {
               status: "disambiguation",
               title: title,
+              page: page,
               depth: depth,
               moveLog: moveLog,
             };
@@ -886,31 +886,65 @@
       return Promise.resolve(false);
     }
 
-    // נקודת הכניסה היחידה להכרעה. מחזירה את אותה תוצאה שהקובץ הישן
-    // מסר לתצוגה, ובנפרד האם המצב המקומי כבר תואם.
-    function run(mechalolTitle, pageName) {
+    // מצב הדף הנוכחי וזמן יצירתו בשאילתה קלה אחת, כששדות התבנית כבר ידועים
+    // מהדף עצמו. כך לא שולפים את כל הוויקיטקסט רק בשביל שלושה שדות.
+    function fetchCurrentPage(title, fields) {
+      return localQuery({
+        titles: title,
+        prop: "info|pageprops|revisions",
+        rvprop: "timestamp",
+        rvlimit: 1,
+        rvdir: "newer",
+        ppprop: "disambiguation",
+        indexpageids: 1,
+      }).then(function (data) {
+        var page = firstPage(data);
+        if (!page || "missing" in page || typeof page.length !== "number") {
+          throw structureError("הדף הנוכחי במכלול");
+        }
+        var rev = page.revisions && page.revisions[0];
+        return {
+          page: {
+            title: page.title,
+            status: "redirect" in page ? "redirect" : "article",
+            disambiguation: !!(page.pageprops && "disambiguation" in page.pageprops),
+            fields: fields,
+            size: page.length,
+          },
+          creationTs: rev && rev.timestamp ? rev.timestamp : null,
+        };
+      });
+    }
+
+    // בלי שדות מהדף (אין תבנית, או דף הפניה שאינו מציג אותה): שתי שאילתות,
+    // תוכן הדף וזמן היצירה, כמו קודם.
+    function fetchCurrentPageWithText(title) {
+      var creationRequest = fetchLocalCreationTs(title).catch(function (err) {
+        if (err && err.silent) throw err;
+        return null;
+      });
+      return Promise.all([fetchLocalPageData(title), creationRequest]).then(function (results) {
+        if (results[0].status === "missing") throw structureError("הדף הנוכחי במכלול");
+        return { page: results[0], creationTs: results[1] };
+      });
+    }
+
+    // נקודת הכניסה היחידה להכרעה. knownFields: שדות התבנית כפי שהדף מציג
+    // אותם, או null.
+    function run(mechalolTitle, pageName, knownFields) {
       ownFields = { דף: null, גרסה: null, פריט: null };
       localCreationTs = null;
       localCreationFailed = false;
       currentLocalPage = null;
       currentPageName = pageName;
 
-      var creationRequest = fetchLocalCreationTs(pageName)
-        .then(function (ts) {
-          localCreationTs = ts;
-        })
-        .catch(function (err) {
-          if (err && err.silent) throw err;
-          localCreationFailed = true;
-        });
-
-      return Promise.all([fetchLocalPageData(pageName), creationRequest])
-        .then(function (results) {
-          var localPage = results[0];
-          if (localPage.status === "missing") throw structureError("הדף הנוכחי במכלול");
-          currentLocalPage = localPage;
-          ownFields = localPage.fields;
-          return resolveWikipediaState(mechalolTitle, localPage.wikitext);
+      return (knownFields ? fetchCurrentPage(pageName, knownFields) : fetchCurrentPageWithText(pageName))
+        .then(function (current) {
+          currentLocalPage = current.page;
+          ownFields = current.page.fields;
+          localCreationTs = current.creationTs;
+          localCreationFailed = !current.creationTs;
+          return resolveWikipediaState(mechalolTitle, ownFields);
         })
         .then(function (result) {
           return localStateMatches(result).then(function (matches) {

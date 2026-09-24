@@ -72,7 +72,7 @@ function noArticleActions(c) {
     c.ok(forbidden.indexOf(label) === -1, `פעולה אסורה בדף הפניה: ${label}`);
     c.ok(!(label.startsWith(probe[0]) && label.endsWith(probe[1])), `מחיקה והעברה בדף הפניה: ${label}`);
   }
-  c.ok(!c.exists('.mw-indicators .hmk-diff'), 'אין מחוון גודל בדף הפניה');
+  c.ok(!c.exists('.mw-indicators .hmk-size-wrap'), 'אין מחוון גודל בדף הפניה');
   c.ok(!c.exists('.mw-indicators .hmk-update-toggle'), 'אין "מאז הייבוא" בדף הפניה');
 }
 
@@ -81,11 +81,12 @@ function build() {
 
   // ---- תקינה ----
   out.push(
-    redirectScenario('renamed-same-target', 'הערך הועבר בוויקיפדיה, וההפניה כבר מובילה לשם החדש: שקט', {
+    redirectScenario('renamed-same-target', 'הערך הועבר בוויקיפדיה, וההפניה כבר מובילה לשם החדש: סימן ירוק', {
       result: WP.renamed('יעד'),
       localPages: { [PAGE]: redirectPage('יעד'), 'יעד': { body: 'ערך.' } },
       start(c) {
         c.ok(!c.card(), 'אין כרטיס');
+        c.eq(c.text('.mw-indicators .hmk-diff'), '✓ ההפניה תואמת לוויקיפדיה', 'סימן התאמה');
         noArticleActions(c);
       },
     }),

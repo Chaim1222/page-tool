@@ -110,6 +110,12 @@ function chainScenario(contract, cs) {
           c.ok(!cardEl, 'מצב מקומי תואם: אין כרטיס');
           c.eq(c.count('#hmk-tool .hmk-skeleton'), 0, 'אין שלד טעינה שנשאר');
           c.eq(c.reads('userinfo').length, 0, 'אין שליפת הרשאות כשאין כרטיס');
+          if (status === 'redirect') {
+            c.eq(c.text('.mw-indicators .hmk-diff'), '✓ ההפניה תואמת לוויקיפדיה', 'הפניה תואמת: סימן ירוק');
+          }
+          if (status === 'disambiguation') {
+            c.ok(c.exists('.mw-indicators .hmk-size-wrap'), 'פירושונים בשני האתרים: מחוון גודל כמו בערך רגיל');
+          }
         } else if (delivery === 'failure') {
           c.eq(c.title(), c.STR && c.STR.checkFailedTitle, 'כרטיס כשל');
           c.eq(c.labels(), c.STR ? [c.STR.btnRetry] : [], 'ניסיון חוזר');

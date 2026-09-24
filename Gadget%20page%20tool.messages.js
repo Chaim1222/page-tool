@@ -59,6 +59,7 @@ window.HMK_PAGE_TOOL_MESSAGES = {
   decisionLeadMakeRedirect: "היעד כבר קיים כאותו ערך",
   decisionLeadNone: "הדף כבר נמצא בשם היעד",
   decisionLeadManual: "נדרשת בדיקה ידנית",
+  decisionLeadMerged: "הערך מוזג בוויקיפדיה",
 
   // תצוגה מקדימה לקישורי יעד
   previewLoading: "טוען תצוגה מקדימה…",
@@ -119,6 +120,8 @@ window.HMK_PAGE_TOOL_MESSAGES = {
   },
   targetStatusUnknownReason: "בדיקת מצב דף היעד במכלול לא הושלמה. לא מבצעים פעולה אוטומטית.",
   moveWithRedirectReason: "בוויקיפדיה השם הישן מפנה אל היעד החדש, ולכן מומלץ להשאיר הפניה גם במכלול.",
+  mergedTargetReason: "בוויקיפדיה הערך מוזג לערך אחר, שקיים גם במכלול. לכן הדף הופך להפניה אליו, בלי העברה.",
+  mergedMissingReason: "בוויקיפדיה הערך מוזג לערך אחר, שאינו קיים במכלול. נדרשת בדיקה ידנית.",
   moveNoRedirectReason: "בוויקיפדיה השם הישן אינו מפנה אל היעד החדש, ולכן מומלץ להעביר בלי להשאיר הפניה.",
 
   // פאנל: מסלול ההכרעה

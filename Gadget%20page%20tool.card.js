@@ -829,7 +829,8 @@
     // להפיל את הכרטיס; כל מצב שאינו בטוח חוסם פעולה אוטומטית.
     // wpOldTitle ו־wpTarget הם השמות בוויקיפדיה. השם המקומי של הדף יכול
     // להיות שונה מהם, ולכן שאלת ההפניה נשאלת על שם ויקיפדיה ולא על שמו.
-    function computeMoveChecklist(oldname, target, wpOldTitle, wpTarget) {
+    // merged: בוויקיפדיה הכותרת הפכה להפניה, כלומר הערך מוזג לערך אחר.
+    function computeMoveChecklist(oldname, target, wpOldTitle, wpTarget, merged) {
       return Promise.all([
         wpRedirectTarget(wpOldTitle),
         fetchLocalPageData(target, true),
@@ -859,6 +860,14 @@
           action = "none"; label = STR.noActionNeeded; reason = STR.targetCurrentReason;
         } else if (targetStatus === "unchecked") {
           action = "manual_review"; label = STR.manualReview; reason = STR.targetStatusUnknownReason;
+        } else if (merged) {
+          // ערך שמוזג אינו מועבר: אם הערך המאחד קיים במכלול, הדף הופך
+          // להפניה אליו; אחרת בדיקה ידנית.
+          if (targetStatus === "article") {
+            action = "make_redirect"; label = STR.btnMakeRedirect; reason = STR.mergedTargetReason;
+          } else {
+            action = "manual_review"; label = STR.manualReview; reason = STR.mergedMissingReason;
+          }
         } else if (targetRedirectsElsewhere) {
           action = "manual_review"; label = STR.manualReview;
           reason = STR.targetRedirectElsewhereReason(targetRedirect ? targetRedirect.target : null);
@@ -888,6 +897,7 @@
           targetIdentity: targetIdentity,
           targetSameIdentity: targetSameIdentity,
           targetIsCurrentPage: targetIsCurrentPage,
+          merged: !!merged,
           backlinksRoot: oldname,
           backlinksCount: backlinks.count,
           backlinksDirectCount: backlinks.directCount,
@@ -1415,6 +1425,7 @@
         addAction(rendered, retryAction());
         return;
       }
+      if (checklistData.merged) return;
 
       // יעד שהוא הפניה לדף אחר: המכלול החליט עליה בעצמו, ולכן אין מחיקה
       // והעברה. נשארת בקשת העברה ממפעילים.
@@ -1490,7 +1501,9 @@
         return s ? STR.btnMoveNoRedirect : STR.btnMoveWithRedirect;
       }
 
-      var checklistPromise = computeMoveChecklist(oldname, target, names.wpOldTitle, wpTarget);
+      var checklistPromise = computeMoveChecklist(
+        oldname, target, names.wpOldTitle, wpTarget, result.status === "redirect"
+      );
 
       var rendered = showResultCard(result, {
         type: "notice",
@@ -1615,8 +1628,9 @@
             redirectTo
           );
         }
-        var decisionLead =
-          d.action === "move_with_redirect"
+        var decisionLead = d.merged
+          ? STR.decisionLeadMerged
+          : d.action === "move_with_redirect"
             ? STR.decisionLeadMoveWithRedirect
             : d.action === "move_no_redirect"
             ? STR.decisionLeadMoveNoRedirect
@@ -2276,6 +2290,7 @@
                 normalizeFragment(local.fragment) === normalizeFragment(wp.fragment));
             if (same) {
               clearTool();
+              runtime.showMatchIndicator();
               return;
             }
             showLocalRedirectCard({ healthy: true, local: local, chain: chain, result: result });

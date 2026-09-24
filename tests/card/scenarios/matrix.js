@@ -134,6 +134,7 @@ function expectedMoveActions(variant, caps, STR, target) {
   const canMove = (suppress) => (suppress ? caps.moveWithoutRedirect : caps.moveWithRedirect);
   switch (variant.action) {
     case 'none':
+    case 'manual-none':
       return [];
     case 'make_redirect':
       return [STR.btnMakeRedirect];
@@ -156,8 +157,17 @@ function expectedMoveActions(variant, caps, STR, target) {
   }
 }
 
-function moveScenario(resultKey, variantKey, variant, profile) {
+// ערך שמוזג בוויקיפדיה (הכותרת שם היא הפניה): אין העברה. יעד שקיים במכלול
+// כערך ← הפיכה להפניה; יעד שלא נבדק ← "נסה שוב"; כל השאר ← בדיקה ידנית בלי פעולות.
+function mergedVariant(variant) {
+  if (variant.targetStatus === 'unchecked') return variant;
+  if (variant.local && variant.targetStatus !== 'redirect-elsewhere') return Object.assign({}, variant, { action: 'make_redirect' });
+  return Object.assign({}, variant, { action: 'manual-none' });
+}
+
+function moveScenario(resultKey, variantKey, rawVariant, profile) {
   const fx = RESULTS[resultKey];
+  const variant = fx.result.status === 'redirect' ? mergedVariant(rawVariant) : rawVariant;
   const T = fx.target;
   const expected = expectedCapabilities(profile);
   const cardTitleKey = fx.result.status === 'redirect' ? 'redirectTitle' : 'renamedTitle';
