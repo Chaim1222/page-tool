@@ -1,0 +1,80 @@
+{
+  "id": "A-state-chain_too_long-rights-failed",
+  "title": "כרטיס מצב: שרשרת ארוכה מדי — כשל-הרשאות",
+  "level": "A",
+  "profile": "כשל-הרשאות",
+  "frames": [
+    {
+      "step": "start",
+      "dom": {
+        "tool": [
+          "div#hmk-tool.hmk-tool",
+          "  div.hmk-card.hmk-card-warning [dir=rtl]",
+          "    svg.hmk-icon",
+          "    div.hmk-body",
+          "      div.hmk-title \"שרשרת שינויי-שם ארוכה מדי\"",
+          "      div.hmk-text \"המעקב נעצר אחרי 5 קפיצות. נדרשת בדיקה ידנית.\"",
+          "      div.hmk-action-status [role=status hidden]",
+          "      div.hmk-actions",
+          "        button.hmk-btn.hmk-btn-quiet \"נסה שוב\"",
+          "    button.hmk-arrow [title=פרטים aria-label=פרטים aria-expanded=false]",
+          "  div.hmk-panel [dir=rtl hidden]"
+        ]
+      },
+      "reads": [
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "meta": "userinfo",
+            "uiprop": "rights",
+            "utf8": 1
+          },
+          "outcome": "api:rights-test-failure"
+        }
+      ],
+      "scripts": [
+        "Gadget page tool.core.js",
+        "Gadget page tool.messages.js",
+        "Gadget page tool.card.js"
+      ],
+      "styles": [
+        "/w/index.php?title=משתמש:בוט_גאון_הירדן/Gadget_page_tool.css&action=raw&ctype=text/css"
+      ]
+    },
+    {
+      "step": "1:פתיחת-פרטים",
+      "dom": {
+        "tool": [
+          "div#hmk-tool.hmk-tool",
+          "  div.hmk-card.hmk-card-warning [dir=rtl]",
+          "    svg.hmk-icon",
+          "    div.hmk-body",
+          "      div.hmk-title \"שרשרת שינויי-שם ארוכה מדי\"",
+          "      div.hmk-text \"המעקב נעצר אחרי 5 קפיצות. נדרשת בדיקה ידנית.\"",
+          "      div.hmk-action-status [role=status hidden]",
+          "      div.hmk-actions",
+          "        button.hmk-btn.hmk-btn-quiet \"נסה שוב\"",
+          "    button.hmk-arrow.hmk-arrow-open [title=פרטים aria-label=פרטים aria-expanded=true]",
+          "  div.hmk-panel [dir=rtl]",
+          "    div",
+          "      div.hmk-overview.hmk-overview-2",
+          "        div.hmk-overview-item.hmk-overview-item-warning",
+          "          div.hmk-overview-label \"מה קרה בוויקיפדיה\"",
+          "          div.hmk-overview-main \"המעקב נעצר\"",
+          "          div.hmk-overview-sub \"שרשרת שינויי השם ארוכה מדי · נעצר ב־T6\"",
+          "      section.hmk-tech",
+          "        div.hmk-section-title \"פרטי הזיהוי\"",
+          "        div.hmk-tech-grid",
+          "          div.hmk-row",
+          "            span.hmk-row-label \"זוהה לפי:\"",
+          "            span.hmk-row-val \"מעקב כותרת\""
+        ]
+      },
+      "scripts": [
+        "Gadget page tool.details.js"
+      ]
+    }
+  ]
+}

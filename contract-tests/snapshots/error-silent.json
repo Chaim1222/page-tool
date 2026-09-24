@@ -1,0 +1,46 @@
+{
+  "terminal": "silent",
+  "delivery": "silent",
+  "localStateMatched": false,
+  "result": null,
+  "error": {
+    "kind": "aborted",
+    "transient": false,
+    "silent": true
+  },
+  "calls": [
+    {
+      "stage": "bootstrap",
+      "calls": [
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "ppprop": "disambiguation",
+            "prop": "info|revisions|pageprops",
+            "rvlimit": 1,
+            "rvprop": "ids|size|content",
+            "titles": "מקומי",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "prop": "revisions",
+            "rvdir": "newer",
+            "rvlimit": 1,
+            "rvprop": "timestamp",
+            "titles": "מקומי",
+            "utf8": 1
+          }
+        }
+      ]
+    }
+  ]
+}

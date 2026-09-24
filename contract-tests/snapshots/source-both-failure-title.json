@@ -1,0 +1,133 @@
+{
+  "terminal": "success",
+  "delivery": "render",
+  "localStateMatched": false,
+  "result": {
+    "depth": 0,
+    "moveLog": [],
+    "page": {
+      "ns": 0,
+      "pageid": 30,
+      "revisions": [
+        {
+          "revid": 301,
+          "size": 200
+        }
+      ],
+      "title": "בסיס"
+    },
+    "sourceFailures": [
+      {
+        "error": {
+          "kind": "api",
+          "silent": false,
+          "transient": false
+        },
+        "messageKey": "fallbackRevisionFailed",
+        "sourceKey": "failureSourceRevision"
+      },
+      {
+        "error": {
+          "kind": "notfound",
+          "silent": false,
+          "transient": false
+        },
+        "messageKey": "fallbackWikidataFailed",
+        "sourceKey": "failureSourceWikidata"
+      }
+    ],
+    "status": "found",
+    "title": "בסיס"
+  },
+  "error": null,
+  "calls": [
+    {
+      "stage": "bootstrap",
+      "calls": [
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "ppprop": "disambiguation",
+            "prop": "info|revisions|pageprops",
+            "rvlimit": 1,
+            "rvprop": "ids|size|content",
+            "titles": "מקומי",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "prop": "revisions",
+            "rvdir": "newer",
+            "rvlimit": 1,
+            "rvprop": "timestamp",
+            "titles": "מקומי",
+            "utf8": 1
+          }
+        }
+      ]
+    },
+    {
+      "stage": "revision",
+      "calls": [
+        {
+          "endpoint": "wp",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "origin": "*",
+            "prop": "info",
+            "revids": "101",
+            "utf8": 1
+          }
+        }
+      ]
+    },
+    {
+      "stage": "wikidata",
+      "calls": [
+        {
+          "endpoint": "wikidata",
+          "params": {
+            "action": "wbgetentities",
+            "format": "json",
+            "ids": "Q1",
+            "origin": "*",
+            "props": "sitelinks",
+            "sitefilter": "hewiki"
+          }
+        }
+      ]
+    },
+    {
+      "stage": "title",
+      "calls": [
+        {
+          "endpoint": "wp",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "lllang": "en",
+            "llprop": "langname|url",
+            "origin": "*",
+            "ppprop": "disambiguation",
+            "prop": "info|revisions|langlinks|pageprops",
+            "redirects": 1,
+            "rvprop": "size|ids",
+            "titles": "בסיס",
+            "utf8": 1
+          }
+        }
+      ]
+    }
+  ]
+}

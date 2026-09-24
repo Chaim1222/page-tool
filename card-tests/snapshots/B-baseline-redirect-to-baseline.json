@@ -1,0 +1,153 @@
+{
+  "id": "B-baseline-redirect-to-baseline",
+  "title": "שרשרת מלאה: הפניה ליעד הבסיס",
+  "level": "B",
+  "profile": "מפעיל",
+  "frames": [
+    {
+      "step": "start",
+      "dom": {
+        "tool": [
+          "div#hmk-tool.hmk-tool",
+          "  div.hmk-card.hmk-card-success [dir=rtl]",
+          "    svg.hmk-icon",
+          "    div.hmk-body",
+          "      div.hmk-title \"השינוי כבר טופל\"",
+          "      div.hmk-text \"מזהה הגרסה מצביע על הפניה ישנה, אבל יעד ההפניה כבר זהה לשדה דף בתבנית. אין שינוי חדש לטיפול.\"",
+          "      div.hmk-action-status [role=status hidden]",
+          "    button.hmk-arrow [title=פרטים aria-label=פרטים aria-expanded=false]",
+          "  div.hmk-panel [dir=rtl hidden]"
+        ]
+      },
+      "reads": [
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "ppprop": "disambiguation",
+            "prop": "info|revisions|pageprops",
+            "rvlimit": 1,
+            "rvprop": "ids|size|content",
+            "titles": "מקומי",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "prop": "revisions",
+            "rvdir": "newer",
+            "rvlimit": 1,
+            "rvprop": "timestamp",
+            "titles": "מקומי",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "meta": "userinfo",
+            "uiprop": "rights",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "wp",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "lllang": "en",
+            "llprop": "langname|url",
+            "origin": "*",
+            "ppprop": "disambiguation",
+            "prop": "info|revisions|langlinks|pageprops",
+            "redirects": 1,
+            "rvprop": "size|ids",
+            "titles": "חדש",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "wp",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "lllang": "en",
+            "llprop": "langname|url",
+            "origin": "*",
+            "ppprop": "disambiguation",
+            "prop": "info|revisions|langlinks|pageprops",
+            "redirects": 1,
+            "rvprop": "size|ids",
+            "titles": "ישן",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "wp",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "origin": "*",
+            "prop": "info",
+            "revids": "101",
+            "utf8": 1
+          }
+        }
+      ],
+      "scripts": [
+        "Gadget page tool.core.js",
+        "Gadget page tool.messages.js",
+        "Gadget page tool.card.js"
+      ],
+      "styles": [
+        "/w/index.php?title=משתמש:בוט_גאון_הירדן/Gadget_page_tool.css&action=raw&ctype=text/css"
+      ]
+    },
+    {
+      "step": "1:פתיחת-פרטים",
+      "dom": {
+        "tool": [
+          "div#hmk-tool.hmk-tool",
+          "  div.hmk-card.hmk-card-success [dir=rtl]",
+          "    svg.hmk-icon",
+          "    div.hmk-body",
+          "      div.hmk-title \"השינוי כבר טופל\"",
+          "      div.hmk-text \"מזהה הגרסה מצביע על הפניה ישנה, אבל יעד ההפניה כבר זהה לשדה דף בתבנית. אין שינוי חדש לטיפול.\"",
+          "      div.hmk-action-status [role=status hidden]",
+          "    button.hmk-arrow.hmk-arrow-open [title=פרטים aria-label=פרטים aria-expanded=true]",
+          "  div.hmk-panel [dir=rtl]",
+          "    div",
+          "      div.hmk-overview.hmk-overview-2",
+          "        div.hmk-overview-item.hmk-overview-item-success",
+          "          div.hmk-overview-label \"מה קרה בוויקיפדיה\"",
+          "          div.hmk-overview-main \"השינוי כבר טופל\"",
+          "          div.hmk-overview-sub \"דף כבר מצביע על חדש\"",
+          "      section.hmk-tech",
+          "        div.hmk-section-title \"פרטי הזיהוי\"",
+          "        div.hmk-tech-grid",
+          "          div.hmk-row.hmk-row-num",
+          "            span.hmk-row-label \"זוהה לפי הגרסה שיובאה:\"",
+          "            span.hmk-row-val \"101\"",
+          "            span.hmk-row-badge \"קיימת בוויקיפדיה\"",
+          "          div.hmk-row",
+          "            span.hmk-row-label \"דף בתבנית:\"",
+          "            span.hmk-row-val \"חדש\""
+        ]
+      },
+      "scripts": [
+        "Gadget page tool.details.js"
+      ]
+    }
+  ]
+}

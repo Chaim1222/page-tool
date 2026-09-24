@@ -1,0 +1,434 @@
+{
+  "id": "B-chain-too-long",
+  "title": "שרשרת מלאה: שרשרת ארוכה מדי",
+  "level": "B",
+  "profile": "מפעיל",
+  "frames": [
+    {
+      "step": "start",
+      "dom": {
+        "tool": [
+          "div#hmk-tool.hmk-tool",
+          "  div.hmk-card.hmk-card-warning [dir=rtl]",
+          "    svg.hmk-icon",
+          "    div.hmk-body",
+          "      div.hmk-title \"שרשרת שינויי-שם ארוכה מדי\"",
+          "      div.hmk-text \"המעקב נעצר אחרי 5 קפיצות. נדרשת בדיקה ידנית.\"",
+          "      div.hmk-action-status [role=status hidden]",
+          "      div.hmk-actions",
+          "        button.hmk-btn.hmk-btn-quiet \"נסה שוב\"",
+          "    button.hmk-arrow [title=פרטים aria-label=פרטים aria-expanded=false]",
+          "  div.hmk-panel [dir=rtl hidden]"
+        ]
+      },
+      "reads": [
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "ppprop": "disambiguation",
+            "prop": "info|revisions|pageprops",
+            "rvlimit": 1,
+            "rvprop": "ids|size|content",
+            "titles": "מקומי",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "prop": "revisions",
+            "rvdir": "newer",
+            "rvlimit": 1,
+            "rvprop": "timestamp",
+            "titles": "מקומי",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "meta": "userinfo",
+            "uiprop": "rights",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "wp",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "lllang": "en",
+            "llprop": "langname|url",
+            "origin": "*",
+            "ppprop": "disambiguation",
+            "prop": "info|revisions|langlinks|pageprops",
+            "redirects": 1,
+            "rvprop": "size|ids",
+            "titles": "T1",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "wp",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "lllang": "en",
+            "llprop": "langname|url",
+            "origin": "*",
+            "ppprop": "disambiguation",
+            "prop": "info|revisions|langlinks|pageprops",
+            "redirects": 1,
+            "rvprop": "size|ids",
+            "titles": "T2",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "wp",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "lllang": "en",
+            "llprop": "langname|url",
+            "origin": "*",
+            "ppprop": "disambiguation",
+            "prop": "info|revisions|langlinks|pageprops",
+            "redirects": 1,
+            "rvprop": "size|ids",
+            "titles": "T3",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "wp",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "lllang": "en",
+            "llprop": "langname|url",
+            "origin": "*",
+            "ppprop": "disambiguation",
+            "prop": "info|revisions|langlinks|pageprops",
+            "redirects": 1,
+            "rvprop": "size|ids",
+            "titles": "T4",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "wp",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "lllang": "en",
+            "llprop": "langname|url",
+            "origin": "*",
+            "ppprop": "disambiguation",
+            "prop": "info|revisions|langlinks|pageprops",
+            "redirects": 1,
+            "rvprop": "size|ids",
+            "titles": "T5",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "wp",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "lllang": "en",
+            "llprop": "langname|url",
+            "origin": "*",
+            "ppprop": "disambiguation",
+            "prop": "info|revisions|langlinks|pageprops",
+            "redirects": 1,
+            "rvprop": "size|ids",
+            "titles": "מקומי",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "wp",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "lelimit": 20,
+            "leprop": "ids|title|type|user|timestamp|comment|details",
+            "letitle": "T1",
+            "letype": "delete",
+            "list": "logevents",
+            "origin": "*",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "wp",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "lelimit": 20,
+            "leprop": "ids|title|type|user|timestamp|comment|details",
+            "letitle": "T1",
+            "letype": "move",
+            "list": "logevents",
+            "origin": "*",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "wp",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "lelimit": 20,
+            "leprop": "ids|title|type|user|timestamp|comment|details",
+            "letitle": "T2",
+            "letype": "delete",
+            "list": "logevents",
+            "origin": "*",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "wp",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "lelimit": 20,
+            "leprop": "ids|title|type|user|timestamp|comment|details",
+            "letitle": "T2",
+            "letype": "move",
+            "list": "logevents",
+            "origin": "*",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "wp",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "lelimit": 20,
+            "leprop": "ids|title|type|user|timestamp|comment|details",
+            "letitle": "T3",
+            "letype": "delete",
+            "list": "logevents",
+            "origin": "*",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "wp",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "lelimit": 20,
+            "leprop": "ids|title|type|user|timestamp|comment|details",
+            "letitle": "T3",
+            "letype": "move",
+            "list": "logevents",
+            "origin": "*",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "wp",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "lelimit": 20,
+            "leprop": "ids|title|type|user|timestamp|comment|details",
+            "letitle": "T4",
+            "letype": "delete",
+            "list": "logevents",
+            "origin": "*",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "wp",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "lelimit": 20,
+            "leprop": "ids|title|type|user|timestamp|comment|details",
+            "letitle": "T4",
+            "letype": "move",
+            "list": "logevents",
+            "origin": "*",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "wp",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "lelimit": 20,
+            "leprop": "ids|title|type|user|timestamp|comment|details",
+            "letitle": "T5",
+            "letype": "delete",
+            "list": "logevents",
+            "origin": "*",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "wp",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "lelimit": 20,
+            "leprop": "ids|title|type|user|timestamp|comment|details",
+            "letitle": "T5",
+            "letype": "move",
+            "list": "logevents",
+            "origin": "*",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "wp",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "lelimit": 20,
+            "leprop": "ids|title|type|user|timestamp|comment|details",
+            "letitle": "מקומי",
+            "letype": "delete",
+            "list": "logevents",
+            "origin": "*",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "wp",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "lelimit": 20,
+            "leprop": "ids|title|type|user|timestamp|comment|details",
+            "letitle": "מקומי",
+            "letype": "move",
+            "list": "logevents",
+            "origin": "*",
+            "utf8": 1
+          }
+        }
+      ],
+      "scripts": [
+        "Gadget page tool.core.js",
+        "Gadget page tool.messages.js",
+        "Gadget page tool.card.js"
+      ],
+      "styles": [
+        "/w/index.php?title=משתמש:בוט_גאון_הירדן/Gadget_page_tool.css&action=raw&ctype=text/css"
+      ]
+    },
+    {
+      "step": "1:פתיחת-פרטים",
+      "dom": {
+        "tool": [
+          "div#hmk-tool.hmk-tool",
+          "  div.hmk-card.hmk-card-warning [dir=rtl]",
+          "    svg.hmk-icon",
+          "    div.hmk-body",
+          "      div.hmk-title \"שרשרת שינויי-שם ארוכה מדי\"",
+          "      div.hmk-text \"המעקב נעצר אחרי 5 קפיצות. נדרשת בדיקה ידנית.\"",
+          "      div.hmk-action-status [role=status hidden]",
+          "      div.hmk-actions",
+          "        button.hmk-btn.hmk-btn-quiet \"נסה שוב\"",
+          "    button.hmk-arrow.hmk-arrow-open [title=פרטים aria-label=פרטים aria-expanded=true]",
+          "  div.hmk-panel [dir=rtl]",
+          "    div",
+          "      div.hmk-overview.hmk-overview-2",
+          "        div.hmk-overview-item.hmk-overview-item-warning",
+          "          div.hmk-overview-label \"מה קרה בוויקיפדיה\"",
+          "          div.hmk-overview-main \"המעקב נעצר\"",
+          "          div.hmk-overview-sub \"שרשרת שינויי השם ארוכה מדי · נעצר ב־T6\"",
+          "      section.hmk-tech",
+          "        div.hmk-section-title \"פרטי הזיהוי\"",
+          "        div.hmk-tech-grid",
+          "          div.hmk-row",
+          "            span.hmk-row-label \"זוהה לפי:\"",
+          "            span.hmk-row-val \"מעקב כותרת\"",
+          "      section.hmk-log-section",
+          "        div.hmk-section-title \"יומן ההעברות והמחיקות בוויקיפדיה\"",
+          "        ul.hmk-log-list",
+          "          li.hmk-log-item",
+          "            span.hmk-log-time \"02:00, 1 בפברואר 2026\"",
+          "            \" — \"",
+          "            a.mw-userlink [href=https://he.wikipedia.org/wiki/משתמש:Mover target=_blank] \"Mover\"",
+          "            \"העביר את הדף\"",
+          "            \" לשם \"",
+          "            a [href=https://he.wikipedia.org/wiki/T1 target=_blank] \"T1\"",
+          "            \" · עם הפניה\"",
+          "            span.hmk-log-comment \"(move)\"",
+          "          li.hmk-log-item",
+          "            span.hmk-log-time \"02:00, 1 בפברואר 2026\"",
+          "            \" — \"",
+          "            a.mw-userlink [href=https://he.wikipedia.org/wiki/משתמש:Mover target=_blank] \"Mover\"",
+          "            \"העביר את הדף\"",
+          "            \" לשם \"",
+          "            a [href=https://he.wikipedia.org/wiki/T2 target=_blank] \"T2\"",
+          "            \" · עם הפניה\"",
+          "            span.hmk-log-comment \"(move)\"",
+          "          li.hmk-log-item",
+          "            span.hmk-log-time \"02:00, 1 בפברואר 2026\"",
+          "            \" — \"",
+          "            a.mw-userlink [href=https://he.wikipedia.org/wiki/משתמש:Mover target=_blank] \"Mover\"",
+          "            \"העביר את הדף\"",
+          "            \" לשם \"",
+          "            a [href=https://he.wikipedia.org/wiki/T3 target=_blank] \"T3\"",
+          "            \" · עם הפניה\"",
+          "            span.hmk-log-comment \"(move)\"",
+          "          li.hmk-log-item",
+          "            span.hmk-log-time \"02:00, 1 בפברואר 2026\"",
+          "            \" — \"",
+          "            a.mw-userlink [href=https://he.wikipedia.org/wiki/משתמש:Mover target=_blank] \"Mover\"",
+          "            \"העביר את הדף\"",
+          "            \" לשם \"",
+          "            a [href=https://he.wikipedia.org/wiki/T4 target=_blank] \"T4\"",
+          "            \" · עם הפניה\"",
+          "            span.hmk-log-comment \"(move)\"",
+          "          li.hmk-log-item",
+          "            span.hmk-log-time \"02:00, 1 בפברואר 2026\"",
+          "            \" — \"",
+          "            a.mw-userlink [href=https://he.wikipedia.org/wiki/משתמש:Mover target=_blank] \"Mover\"",
+          "            \"העביר את הדף\"",
+          "            \" לשם \"",
+          "            a [href=https://he.wikipedia.org/wiki/T5 target=_blank] \"T5\"",
+          "            \" · עם הפניה\"",
+          "            span.hmk-log-comment \"(move)\"",
+          "          li.hmk-log-item",
+          "            span.hmk-log-time \"02:00, 1 בפברואר 2026\"",
+          "            \" — \"",
+          "            a.mw-userlink [href=https://he.wikipedia.org/wiki/משתמש:Mover target=_blank] \"Mover\"",
+          "            \"העביר את הדף\"",
+          "            \" לשם \"",
+          "            a [href=https://he.wikipedia.org/wiki/T6 target=_blank] \"T6\"",
+          "            \" · עם הפניה\"",
+          "            span.hmk-log-comment \"(move)\""
+        ]
+      },
+      "scripts": [
+        "Gadget page tool.details.js"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,250 @@
+{
+  "id": "I-preview-hover-keeps-fragment",
+  "title": "ריחוף על קישור ליעד עם פסקה: המודול נטען פעם אחת, הבועה מוצגת, והפסקה נשמרת בקישור",
+  "level": "A",
+  "profile": "מפעיל",
+  "frames": [
+    {
+      "step": "start",
+      "dom": {
+        "tool": [
+          "div#hmk-tool.hmk-tool",
+          "  div.hmk-card.hmk-card-notice [dir=rtl]",
+          "    svg.hmk-icon",
+          "    div.hmk-body",
+          "      div.hmk-title \"הכותרת היא הפניה בוויקיפדיה\"",
+          "      div.hmk-text",
+          "        \"הפניה אל: \"",
+          "        span.hmk-target",
+          "          a.hmk-preview-link [href=/wiki/יעד#פסקה] \"יעד#פסקה\"",
+          "      div.hmk-action-status [role=status hidden]",
+          "      div.hmk-carddecision",
+          "        strong \"היעד כבר קיים כאותו ערך — \"",
+          "        \"הפיכה להפניה.\"",
+          "      div.hmk-actions",
+          "        button.hmk-btn.hmk-btn-primary \"הפיכה להפניה\"",
+          "    button.hmk-arrow [title=פרטים aria-label=פרטים aria-expanded=false]",
+          "  div.hmk-panel [dir=rtl hidden]"
+        ]
+      },
+      "reads": [
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "blfilterredir": "nonredirects",
+            "bllimit": "max",
+            "blnamespace": 0,
+            "bltitle": "מקומי",
+            "format": "json",
+            "list": "backlinks",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "blfilterredir": "redirects",
+            "bllimit": "max",
+            "blnamespace": 0,
+            "bltitle": "מקומי",
+            "format": "json",
+            "list": "backlinks",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "ppprop": "disambiguation",
+            "prop": "info|revisions|pageprops",
+            "rvlimit": 1,
+            "rvprop": "ids|size|content",
+            "titles": "יעד",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "meta": "userinfo",
+            "uiprop": "rights",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "wp",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "origin": "*",
+            "prop": "info",
+            "redirects": 1,
+            "titles": "מקומי",
+            "utf8": 1
+          }
+        }
+      ],
+      "scripts": [
+        "Gadget page tool.core.js",
+        "Gadget page tool.messages.js",
+        "Gadget page tool.card.js"
+      ],
+      "styles": [
+        "/w/index.php?title=משתמש:בוט_גאון_הירדן/Gadget_page_tool.css&action=raw&ctype=text/css"
+      ]
+    },
+    {
+      "step": "1:ריחוף",
+      "dom": {
+        "tool": [
+          "div#hmk-tool.hmk-tool",
+          "  div.hmk-card.hmk-card-notice [dir=rtl]",
+          "    svg.hmk-icon",
+          "    div.hmk-body",
+          "      div.hmk-title \"הכותרת היא הפניה בוויקיפדיה\"",
+          "      div.hmk-text",
+          "        \"הפניה אל: \"",
+          "        span.hmk-target",
+          "          a.hmk-preview-link [href=/wiki/יעד#פסקה aria-describedby=hmk-link-preview] \"יעד#פסקה\"",
+          "      div.hmk-action-status [role=status hidden]",
+          "      div.hmk-carddecision",
+          "        strong \"היעד כבר קיים כאותו ערך — \"",
+          "        \"הפיכה להפניה.\"",
+          "      div.hmk-actions",
+          "        button.hmk-btn.hmk-btn-primary \"הפיכה להפניה\"",
+          "    button.hmk-arrow [title=פרטים aria-label=פרטים aria-expanded=false]",
+          "  div.hmk-panel [dir=rtl hidden]"
+        ],
+        "preview": [
+          "div#hmk-link-preview.hmk-link-preview [dir=rtl role=tooltip]",
+          "  div.hmk-link-preview-title \"ערך\"",
+          "  div.hmk-link-preview-text \"יעד הוא ערך לדוגמה בסוויטת הבדיקות.\""
+        ]
+      },
+      "reads": [
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "parse",
+            "disableeditsection": 1,
+            "disablelimitreport": 1,
+            "format": "json",
+            "page": "יעד",
+            "prop": "text"
+          }
+        },
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "ppprop": "disambiguation",
+            "prop": "info|pageprops",
+            "redirects": 1,
+            "titles": "יעד",
+            "utf8": 1
+          }
+        }
+      ],
+      "scripts": [
+        "Gadget page tool.preview.js"
+      ]
+    },
+    {
+      "step": "2:יציאה",
+      "dom": {
+        "tool": [
+          "div#hmk-tool.hmk-tool",
+          "  div.hmk-card.hmk-card-notice [dir=rtl]",
+          "    svg.hmk-icon",
+          "    div.hmk-body",
+          "      div.hmk-title \"הכותרת היא הפניה בוויקיפדיה\"",
+          "      div.hmk-text",
+          "        \"הפניה אל: \"",
+          "        span.hmk-target",
+          "          a.hmk-preview-link [href=/wiki/יעד#פסקה] \"יעד#פסקה\"",
+          "      div.hmk-action-status [role=status hidden]",
+          "      div.hmk-carddecision",
+          "        strong \"היעד כבר קיים כאותו ערך — \"",
+          "        \"הפיכה להפניה.\"",
+          "      div.hmk-actions",
+          "        button.hmk-btn.hmk-btn-primary \"הפיכה להפניה\"",
+          "    button.hmk-arrow [title=פרטים aria-label=פרטים aria-expanded=false]",
+          "  div.hmk-panel [dir=rtl hidden]"
+        ],
+        "preview": [
+          "div#hmk-link-preview.hmk-link-preview [dir=rtl role=tooltip hidden]",
+          "  div.hmk-link-preview-title \"ערך\"",
+          "  div.hmk-link-preview-text \"יעד הוא ערך לדוגמה בסוויטת הבדיקות.\""
+        ]
+      }
+    },
+    {
+      "step": "3:ריחוף-שני",
+      "dom": {
+        "tool": [
+          "div#hmk-tool.hmk-tool",
+          "  div.hmk-card.hmk-card-notice [dir=rtl]",
+          "    svg.hmk-icon",
+          "    div.hmk-body",
+          "      div.hmk-title \"הכותרת היא הפניה בוויקיפדיה\"",
+          "      div.hmk-text",
+          "        \"הפניה אל: \"",
+          "        span.hmk-target",
+          "          a.hmk-preview-link [href=/wiki/יעד#פסקה aria-describedby=hmk-link-preview] \"יעד#פסקה\"",
+          "      div.hmk-action-status [role=status hidden]",
+          "      div.hmk-carddecision",
+          "        strong \"היעד כבר קיים כאותו ערך — \"",
+          "        \"הפיכה להפניה.\"",
+          "      div.hmk-actions",
+          "        button.hmk-btn.hmk-btn-primary \"הפיכה להפניה\"",
+          "    button.hmk-arrow [title=פרטים aria-label=פרטים aria-expanded=false]",
+          "  div.hmk-panel [dir=rtl hidden]"
+        ],
+        "preview": [
+          "div#hmk-link-preview.hmk-link-preview [dir=rtl role=tooltip]",
+          "  div.hmk-link-preview-title \"ערך\"",
+          "  div.hmk-link-preview-text \"יעד הוא ערך לדוגמה בסוויטת הבדיקות.\""
+        ]
+      }
+    },
+    {
+      "step": "4:אסקייפ",
+      "dom": {
+        "tool": [
+          "div#hmk-tool.hmk-tool",
+          "  div.hmk-card.hmk-card-notice [dir=rtl]",
+          "    svg.hmk-icon",
+          "    div.hmk-body",
+          "      div.hmk-title \"הכותרת היא הפניה בוויקיפדיה\"",
+          "      div.hmk-text",
+          "        \"הפניה אל: \"",
+          "        span.hmk-target",
+          "          a.hmk-preview-link [href=/wiki/יעד#פסקה] \"יעד#פסקה\"",
+          "      div.hmk-action-status [role=status hidden]",
+          "      div.hmk-carddecision",
+          "        strong \"היעד כבר קיים כאותו ערך — \"",
+          "        \"הפיכה להפניה.\"",
+          "      div.hmk-actions",
+          "        button.hmk-btn.hmk-btn-primary \"הפיכה להפניה\"",
+          "    button.hmk-arrow [title=פרטים aria-label=פרטים aria-expanded=false]",
+          "  div.hmk-panel [dir=rtl hidden]"
+        ],
+        "preview": [
+          "div#hmk-link-preview.hmk-link-preview [dir=rtl role=tooltip hidden]",
+          "  div.hmk-link-preview-title \"ערך\"",
+          "  div.hmk-link-preview-text \"יעד הוא ערך לדוגמה בסוויטת הבדיקות.\""
+        ]
+      }
+    }
+  ]
+}

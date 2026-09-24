@@ -1,0 +1,53 @@
+{
+  "id": "B-error-silent",
+  "title": "שרשרת מלאה: כשל שקט",
+  "level": "B",
+  "profile": "מפעיל",
+  "frames": [
+    {
+      "step": "start",
+      "dom": {
+        "tool": [
+          "div#hmk-tool.hmk-tool",
+          "  div.hmk-skeleton [dir=rtl]",
+          "    span.hmk-spinner",
+          "    span \"בודק מצב הערך בוויקיפדיה…\""
+        ]
+      },
+      "reads": [
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "ppprop": "disambiguation",
+            "prop": "info|revisions|pageprops",
+            "rvlimit": 1,
+            "rvprop": "ids|size|content",
+            "titles": "מקומי",
+            "utf8": 1
+          },
+          "outcome": "abort"
+        },
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "prop": "revisions",
+            "rvdir": "newer",
+            "rvlimit": 1,
+            "rvprop": "timestamp",
+            "titles": "מקומי",
+            "utf8": 1
+          }
+        }
+      ],
+      "scripts": [
+        "Gadget page tool.core.js"
+      ]
+    }
+  ]
+}

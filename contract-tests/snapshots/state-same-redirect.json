@@ -1,0 +1,86 @@
+{
+  "terminal": "success",
+  "delivery": "suppressed",
+  "localStateMatched": true,
+  "result": {
+    "depth": 0,
+    "moveLog": [],
+    "status": "redirect",
+    "target": "יעד",
+    "targetFragment": "פסקה",
+    "title": "מקומי"
+  },
+  "error": null,
+  "calls": [
+    {
+      "stage": "bootstrap",
+      "calls": [
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "ppprop": "disambiguation",
+            "prop": "info|revisions|pageprops",
+            "rvlimit": 1,
+            "rvprop": "ids|size|content",
+            "titles": "מקומי",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "prop": "revisions",
+            "rvdir": "newer",
+            "rvlimit": 1,
+            "rvprop": "timestamp",
+            "titles": "מקומי",
+            "utf8": 1
+          }
+        }
+      ]
+    },
+    {
+      "stage": "title",
+      "calls": [
+        {
+          "endpoint": "wp",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "lllang": "en",
+            "llprop": "langname|url",
+            "origin": "*",
+            "ppprop": "disambiguation",
+            "prop": "info|revisions|langlinks|pageprops",
+            "redirects": 1,
+            "rvprop": "size|ids",
+            "titles": "מקומי",
+            "utf8": 1
+          }
+        }
+      ]
+    },
+    {
+      "stage": "local-state",
+      "calls": [
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "redirects": 1,
+            "titles": "מקומי",
+            "utf8": 1
+          }
+        }
+      ]
+    }
+  ]
+}

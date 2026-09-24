@@ -1,0 +1,35 @@
+{
+  "id": "I-core-script-failure",
+  "title": "כשל קבוע בטעינת הליבה: הודעת כשל טעינת משאבים ולא כרטיס",
+  "level": "A",
+  "profile": "מפעיל",
+  "frames": [
+    {
+      "step": "start",
+      "dom": {
+        "tool": [
+          "div#hmk-tool.hmk-tool",
+          "  div.hmk-skeleton [dir=rtl] \"לא ניתן לטעון את משאבי הכרטיס. רענן את הדף ונסה שוב.\""
+        ]
+      },
+      "scripts": [
+        "Gadget page tool.core.js",
+        "Gadget page tool.messages.js",
+        "Gadget page tool.card.js"
+      ],
+      "styles": [
+        "/w/index.php?title=משתמש:בוט_גאון_הירדן/Gadget_page_tool.css&action=raw&ctype=text/css"
+      ],
+      "console": [
+        {
+          "level": "error",
+          "text": "Error: טעינת הסקריפט נכשלה: Gadget page tool.core.js"
+        },
+        {
+          "level": "error",
+          "text": "TypeError: Cannot read properties of null (reading 'normalizeTitle')"
+        }
+      ]
+    }
+  ]
+}

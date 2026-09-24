@@ -1,0 +1,28 @@
+{
+  "id": "A-found-found-sysop",
+  "title": "נמצא בלי אזהרות: אין כרטיס, רק מחוון גודל — מפעיל",
+  "level": "A",
+  "profile": "מפעיל",
+  "frames": [
+    {
+      "step": "start",
+      "dom": {
+        "indicators": [
+          "div.mw-indicator",
+          "  span",
+          "    span.hmk-diff.hmk-diff-pos [dir=rtl] \"ויקיפדיה: +50\"",
+          "    span.hmk-diff-alt \"(בסיס)\""
+        ],
+        "lang": [
+          "div.vector-menu-content.hmk-en-link",
+          "  ul.vector-menu-content-list",
+          "    li.interlanguage-link.interwiki-en",
+          "      a.interlanguage-link-target [href=https://en.wikipedia.org/wiki/Base title=אנגלית target=blank] \"אנגלית\""
+        ]
+      },
+      "scripts": [
+        "Gadget page tool.core.js"
+      ]
+    }
+  ]
+}

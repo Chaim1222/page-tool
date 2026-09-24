@@ -1,0 +1,64 @@
+{
+  "id": "I-retry-replaces-card",
+  "title": "\"נסה שוב\" מנקה את הכרטיס ומריץ את הבדיקה מחדש בלי כפילויות",
+  "level": "A",
+  "profile": "מפעיל",
+  "frames": [
+    {
+      "step": "start",
+      "dom": {
+        "tool": [
+          "div#hmk-tool.hmk-tool",
+          "  div.hmk-card.hmk-card-warning [dir=rtl]",
+          "    svg.hmk-icon",
+          "    div.hmk-body",
+          "      div.hmk-title \"שרשרת שינויי-שם ארוכה מדי\"",
+          "      div.hmk-text \"המעקב נעצר אחרי 5 קפיצות. נדרשת בדיקה ידנית.\"",
+          "      div.hmk-action-status [role=status hidden]",
+          "      div.hmk-actions",
+          "        button.hmk-btn.hmk-btn-quiet \"נסה שוב\"",
+          "    button.hmk-arrow [title=פרטים aria-label=פרטים aria-expanded=false]",
+          "  div.hmk-panel [dir=rtl hidden]"
+        ]
+      },
+      "reads": [
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "meta": "userinfo",
+            "uiprop": "rights",
+            "utf8": 1
+          }
+        }
+      ],
+      "scripts": [
+        "Gadget page tool.core.js",
+        "Gadget page tool.messages.js",
+        "Gadget page tool.card.js"
+      ],
+      "styles": [
+        "/w/index.php?title=משתמש:בוט_גאון_הירדן/Gadget_page_tool.css&action=raw&ctype=text/css"
+      ]
+    },
+    {
+      "step": "1:נסה-שוב",
+      "dom": {
+        "tool": [
+          "div#hmk-tool.hmk-tool",
+          "  div.hmk-card.hmk-card-warning [dir=rtl]",
+          "    svg.hmk-icon",
+          "    div.hmk-body",
+          "      div.hmk-title \"שרשרת שינויי-שם ארוכה מדי\"",
+          "      div.hmk-text \"המעקב נעצר אחרי 5 קפיצות. נדרשת בדיקה ידנית.\"",
+          "      div.hmk-action-status [role=status hidden]",
+          "      div.hmk-actions",
+          "        button.hmk-btn.hmk-btn-quiet \"נסה שוב\"",
+          "    button.hmk-arrow [title=פרטים aria-label=פרטים aria-expanded=false]",
+          "  div.hmk-panel [dir=rtl hidden]"
+        ]
+      }
+    }
+  ]
+}

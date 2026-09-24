@@ -1,0 +1,106 @@
+{
+  "id": "I-rights-redirect-deleter-article-target",
+  "title": "מוחק הפניות מול יעד שהוא ערך: אין מחיקה, רק בקשה",
+  "level": "A",
+  "profile": "מוחק-הפניות",
+  "frames": [
+    {
+      "step": "start",
+      "dom": {
+        "tool": [
+          "div#hmk-tool.hmk-tool",
+          "  div.hmk-card.hmk-card-notice [dir=rtl]",
+          "    svg.hmk-icon",
+          "    div.hmk-body",
+          "      div.hmk-title \"שם הערך שונה בוויקיפדיה\"",
+          "      div.hmk-text",
+          "        \"השם החדש: \"",
+          "        span.hmk-target",
+          "          a.hmk-preview-link [href=/wiki/חדש] \"חדש\"",
+          "      div.hmk-action-status [role=status hidden]",
+          "      div.hmk-carddecision",
+          "        strong \"נדרשת בדיקה ידנית — \"",
+          "        \"דף היעד קיים במכלול אך שייך לערך אחר לפי פריט. נדרשת בדיקה ידנית לפני בחירת פעולה.\"",
+          "      div.hmk-actions",
+          "        button.hmk-btn.hmk-btn-quiet \"הפיכה להפניה\"",
+          "        button.hmk-btn.hmk-btn-primary \"בקשת העברה ממפעילים\"",
+          "    button.hmk-arrow [title=פרטים aria-label=פרטים aria-expanded=false]",
+          "  div.hmk-panel [dir=rtl hidden]"
+        ]
+      },
+      "reads": [
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "blfilterredir": "nonredirects",
+            "bllimit": "max",
+            "blnamespace": 0,
+            "bltitle": "מקומי",
+            "format": "json",
+            "list": "backlinks",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "blfilterredir": "redirects",
+            "bllimit": "max",
+            "blnamespace": 0,
+            "bltitle": "מקומי",
+            "format": "json",
+            "list": "backlinks",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "ppprop": "disambiguation",
+            "prop": "info|revisions|pageprops",
+            "rvlimit": 1,
+            "rvprop": "ids|size|content",
+            "titles": "חדש",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "meta": "userinfo",
+            "uiprop": "rights",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "wp",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "origin": "*",
+            "prop": "info",
+            "redirects": 1,
+            "titles": "מקומי",
+            "utf8": 1
+          }
+        }
+      ],
+      "scripts": [
+        "Gadget page tool.core.js",
+        "Gadget page tool.messages.js",
+        "Gadget page tool.card.js"
+      ],
+      "styles": [
+        "/w/index.php?title=משתמש:בוט_גאון_הירדן/Gadget_page_tool.css&action=raw&ctype=text/css"
+      ]
+    }
+  ]
+}

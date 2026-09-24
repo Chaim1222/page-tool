@@ -1,0 +1,139 @@
+{
+  "id": "I-make-redirect-with-fragment",
+  "title": "הפיכה להפניה כשבוויקיפדיה ההפניה היא לפסקה: הפסקה נשמרת בתוכן",
+  "level": "A",
+  "profile": "מפעיל",
+  "frames": [
+    {
+      "step": "start",
+      "dom": {
+        "tool": [
+          "div#hmk-tool.hmk-tool",
+          "  div.hmk-card.hmk-card-notice [dir=rtl]",
+          "    svg.hmk-icon",
+          "    div.hmk-body",
+          "      div.hmk-title \"הכותרת היא הפניה בוויקיפדיה\"",
+          "      div.hmk-text",
+          "        \"הפניה אל: \"",
+          "        span.hmk-target",
+          "          a.hmk-preview-link [href=/wiki/יעד#פסקה] \"יעד#פסקה\"",
+          "      div.hmk-action-status [role=status hidden]",
+          "      div.hmk-carddecision",
+          "        strong \"היעד כבר קיים כאותו ערך — \"",
+          "        \"הפיכה להפניה.\"",
+          "      div.hmk-actions",
+          "        button.hmk-btn.hmk-btn-primary \"הפיכה להפניה\"",
+          "    button.hmk-arrow [title=פרטים aria-label=פרטים aria-expanded=false]",
+          "  div.hmk-panel [dir=rtl hidden]"
+        ]
+      },
+      "reads": [
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "blfilterredir": "nonredirects",
+            "bllimit": "max",
+            "blnamespace": 0,
+            "bltitle": "מקומי",
+            "format": "json",
+            "list": "backlinks",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "blfilterredir": "redirects",
+            "bllimit": "max",
+            "blnamespace": 0,
+            "bltitle": "מקומי",
+            "format": "json",
+            "list": "backlinks",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "ppprop": "disambiguation",
+            "prop": "info|revisions|pageprops",
+            "rvlimit": 1,
+            "rvprop": "ids|size|content",
+            "titles": "יעד",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "meta": "userinfo",
+            "uiprop": "rights",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "wp",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "origin": "*",
+            "prop": "info",
+            "redirects": 1,
+            "titles": "מקומי",
+            "utf8": 1
+          }
+        }
+      ],
+      "scripts": [
+        "Gadget page tool.core.js",
+        "Gadget page tool.messages.js",
+        "Gadget page tool.card.js"
+      ],
+      "styles": [
+        "/w/index.php?title=משתמש:בוט_גאון_הירדן/Gadget_page_tool.css&action=raw&ctype=text/css"
+      ]
+    },
+    {
+      "step": "1:הפיכה-להפניה",
+      "dom": {
+        "tool": [
+          "div#hmk-tool.hmk-tool",
+          "  div.hmk-card.hmk-card-success [dir=rtl]",
+          "    svg.hmk-icon",
+          "    div.hmk-body",
+          "      div.hmk-title \"הדף הפך להפניה\"",
+          "      div.hmk-text \"הפעולה הושלמה. התוכן המוצג בעמוד טרם רוענן.\"",
+          "      div.hmk-action-status [role=status hidden]",
+          "      div.hmk-final-target",
+          "        \"הפניה אל: \"",
+          "        a.hmk-preview-link [href=/wiki/יעד#פסקה] \"יעד#פסקה\""
+        ]
+      },
+      "writes": [
+        {
+          "api": "postWithToken",
+          "outcome": "ok",
+          "params": {
+            "action": "edit",
+            "bot": true,
+            "format": "json",
+            "text": "#הפניה[[יעד#פסקה]]",
+            "title": "מקומי"
+          },
+          "token": "csrf"
+        }
+      ],
+      "confirms": [
+        "התוכן החדש יהיה: #הפניה[[יעד#פסקה]]"
+      ]
+    }
+  ]
+}

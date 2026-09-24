@@ -1,0 +1,89 @@
+{
+  "id": "A-found-found-revid-deleted-and-failure-rights-failed",
+  "title": "נמצא, גרסה נמחקה וגם כשל מקור — כשל-הרשאות",
+  "level": "A",
+  "profile": "כשל-הרשאות",
+  "frames": [
+    {
+      "step": "start",
+      "dom": {
+        "tool": [
+          "div#hmk-tool.hmk-tool",
+          "  div.hmk-card.hmk-card-warning [dir=rtl]",
+          "    svg.hmk-icon",
+          "    div.hmk-body",
+          "      div.hmk-title \"הגרסה שיובאה אינה קיימת בוויקיפדיה\"",
+          "      div.hmk-text \"הדף שממנו יובאה הגרסה למכלול נמחק בוויקיפדיה; הדף המוצג כאן הוא ערך אחר, לפי הכותרת הנוכחית.\"",
+          "      div.hmk-cardwarn",
+          "        span.hmk-cardwarn-mark \"⚠\"",
+          "        span \"בדיקת פריט ויקינתונים נכשלה; ההכרעה התקבלה לפי מעקב הכותרת. הכתובת המבוקשת לא נמצאה.\"",
+          "      div.hmk-action-status [role=status hidden]",
+          "    button.hmk-arrow [title=פרטים aria-label=פרטים aria-expanded=false]",
+          "  div.hmk-panel [dir=rtl hidden]"
+        ]
+      },
+      "reads": [
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "meta": "userinfo",
+            "uiprop": "rights",
+            "utf8": 1
+          },
+          "outcome": "api:rights-test-failure"
+        }
+      ],
+      "scripts": [
+        "Gadget page tool.core.js",
+        "Gadget page tool.messages.js",
+        "Gadget page tool.card.js"
+      ],
+      "styles": [
+        "/w/index.php?title=משתמש:בוט_גאון_הירדן/Gadget_page_tool.css&action=raw&ctype=text/css"
+      ]
+    },
+    {
+      "step": "1:פתיחת-פרטים",
+      "dom": {
+        "tool": [
+          "div#hmk-tool.hmk-tool",
+          "  div.hmk-card.hmk-card-warning [dir=rtl]",
+          "    svg.hmk-icon",
+          "    div.hmk-body",
+          "      div.hmk-title \"הגרסה שיובאה אינה קיימת בוויקיפדיה\"",
+          "      div.hmk-text \"הדף שממנו יובאה הגרסה למכלול נמחק בוויקיפדיה; הדף המוצג כאן הוא ערך אחר, לפי הכותרת הנוכחית.\"",
+          "      div.hmk-cardwarn",
+          "        span.hmk-cardwarn-mark \"⚠\"",
+          "        span \"בדיקת פריט ויקינתונים נכשלה; ההכרעה התקבלה לפי מעקב הכותרת. הכתובת המבוקשת לא נמצאה.\"",
+          "      div.hmk-action-status [role=status hidden]",
+          "    button.hmk-arrow.hmk-arrow-open [title=פרטים aria-label=פרטים aria-expanded=true]",
+          "  div.hmk-panel [dir=rtl]",
+          "    div",
+          "      div.hmk-overview.hmk-overview-2",
+          "        div.hmk-overview-item",
+          "          div.hmk-overview-label \"מה קרה בוויקיפדיה\"",
+          "          div.hmk-overview-main \"הערך קיים\"",
+          "          div.hmk-overview-sub \"בסיס\"",
+          "      section.hmk-tech",
+          "        div.hmk-section-title \"פרטי הזיהוי\"",
+          "        div.hmk-tech-grid",
+          "          div.hmk-row",
+          "            span.hmk-row-label \"זוהה לפי:\"",
+          "            span.hmk-row-val \"מעקב כותרת\"",
+          "          div.hmk-row.hmk-row-warn.hmk-row-num",
+          "            span.hmk-row-label \"הגרסה שיובאה:\"",
+          "            span.hmk-row-val \"101\"",
+          "            span.hmk-row-badge \"אינה קיימת בוויקיפדיה\"",
+          "          div.hmk-row.hmk-row-warn.hmk-row-wide",
+          "            span.hmk-row-label \"בדיקה שלא הושלמה:\"",
+          "            span.hmk-row-val \"בדיקת פריט ויקינתונים נכשלה; ההכרעה התקבלה לפי מעקב הכותרת. הכתובת המבוקשת לא נמצאה.\""
+        ]
+      },
+      "scripts": [
+        "Gadget page tool.details.js"
+      ]
+    }
+  ]
+}

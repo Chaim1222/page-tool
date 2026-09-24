@@ -1,0 +1,147 @@
+{
+  "id": "B-source-revision-deleted",
+  "title": "שרשרת מלאה: גרסה שנמחקה ונפילה לפריט",
+  "level": "B",
+  "profile": "מפעיל",
+  "frames": [
+    {
+      "step": "start",
+      "dom": {
+        "tool": [
+          "div#hmk-tool.hmk-tool",
+          "  div.hmk-card.hmk-card-warning [dir=rtl]",
+          "    svg.hmk-icon",
+          "    div.hmk-body",
+          "      div.hmk-title \"הגרסה שיובאה אינה קיימת בוויקיפדיה\"",
+          "      div.hmk-text \"הדף שממנו יובאה הגרסה למכלול נמחק בוויקיפדיה; הדף המוצג כאן הוא ערך אחר, לפי הכותרת הנוכחית.\"",
+          "      div.hmk-action-status [role=status hidden]",
+          "    button.hmk-arrow [title=פרטים aria-label=פרטים aria-expanded=false]",
+          "  div.hmk-panel [dir=rtl hidden]"
+        ]
+      },
+      "reads": [
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "ppprop": "disambiguation",
+            "prop": "info|revisions|pageprops",
+            "rvlimit": 1,
+            "rvprop": "ids|size|content",
+            "titles": "מקומי",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "prop": "revisions",
+            "rvdir": "newer",
+            "rvlimit": 1,
+            "rvprop": "timestamp",
+            "titles": "מקומי",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "meta": "userinfo",
+            "uiprop": "rights",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "wikidata",
+          "params": {
+            "action": "wbgetentities",
+            "format": "json",
+            "ids": "Q1",
+            "origin": "*",
+            "props": "sitelinks",
+            "sitefilter": "hewiki"
+          }
+        },
+        {
+          "endpoint": "wp",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "lllang": "en",
+            "llprop": "langname|url",
+            "origin": "*",
+            "ppprop": "disambiguation",
+            "prop": "info|revisions|langlinks|pageprops",
+            "redirects": 1,
+            "rvprop": "size|ids",
+            "titles": "בסיס",
+            "utf8": 1
+          }
+        },
+        {
+          "endpoint": "wp",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "indexpageids": 1,
+            "origin": "*",
+            "prop": "info",
+            "revids": "101",
+            "utf8": 1
+          }
+        }
+      ],
+      "scripts": [
+        "Gadget page tool.core.js",
+        "Gadget page tool.messages.js",
+        "Gadget page tool.card.js"
+      ],
+      "styles": [
+        "/w/index.php?title=משתמש:בוט_גאון_הירדן/Gadget_page_tool.css&action=raw&ctype=text/css"
+      ]
+    },
+    {
+      "step": "1:פתיחת-פרטים",
+      "dom": {
+        "tool": [
+          "div#hmk-tool.hmk-tool",
+          "  div.hmk-card.hmk-card-warning [dir=rtl]",
+          "    svg.hmk-icon",
+          "    div.hmk-body",
+          "      div.hmk-title \"הגרסה שיובאה אינה קיימת בוויקיפדיה\"",
+          "      div.hmk-text \"הדף שממנו יובאה הגרסה למכלול נמחק בוויקיפדיה; הדף המוצג כאן הוא ערך אחר, לפי הכותרת הנוכחית.\"",
+          "      div.hmk-action-status [role=status hidden]",
+          "    button.hmk-arrow.hmk-arrow-open [title=פרטים aria-label=פרטים aria-expanded=true]",
+          "  div.hmk-panel [dir=rtl]",
+          "    div",
+          "      div.hmk-overview.hmk-overview-2",
+          "        div.hmk-overview-item",
+          "          div.hmk-overview-label \"מה קרה בוויקיפדיה\"",
+          "          div.hmk-overview-main \"הערך קיים\"",
+          "          div.hmk-overview-sub \"בסיס\"",
+          "      section.hmk-tech",
+          "        div.hmk-section-title \"פרטי הזיהוי\"",
+          "        div.hmk-tech-grid",
+          "          div.hmk-row",
+          "            span.hmk-row-label \"זוהה לפי:\"",
+          "            span.hmk-row-val \"מזהה ויקינתונים\"",
+          "          div.hmk-row.hmk-row-warn.hmk-row-num",
+          "            span.hmk-row-label \"הגרסה שיובאה:\"",
+          "            span.hmk-row-val \"101\"",
+          "            span.hmk-row-badge \"אינה קיימת בוויקיפדיה\""
+        ]
+      },
+      "scripts": [
+        "Gadget page tool.details.js"
+      ]
+    }
+  ]
+}

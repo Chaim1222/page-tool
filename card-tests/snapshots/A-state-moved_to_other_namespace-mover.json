@@ -1,0 +1,91 @@
+{
+  "id": "A-state-moved_to_other_namespace-mover",
+  "title": "כרטיס מצב: הועבר למרחב אחר — מעביר",
+  "level": "A",
+  "profile": "מעביר",
+  "frames": [
+    {
+      "step": "start",
+      "dom": {
+        "tool": [
+          "div#hmk-tool.hmk-tool",
+          "  div.hmk-card.hmk-card-warning [dir=rtl]",
+          "    svg.hmk-icon",
+          "    div.hmk-body",
+          "      div.hmk-title \"הערך הועבר בוויקיפדיה למרחב טיוטה\"",
+          "      div.hmk-text \"המעקב נעצר כאן - הכלי אינו עוקב אחרי מרחבי-שם שאינם המרחב הראשי.\"",
+          "      div.hmk-action-status [role=status hidden]",
+          "      div.hmk-actions",
+          "        button.hmk-btn.hmk-btn-danger \"בקשת מחיקה\"",
+          "    button.hmk-arrow [title=פרטים aria-label=פרטים aria-expanded=false]",
+          "  div.hmk-panel [dir=rtl hidden]"
+        ]
+      },
+      "reads": [
+        {
+          "endpoint": "local",
+          "params": {
+            "action": "query",
+            "format": "json",
+            "meta": "userinfo",
+            "uiprop": "rights",
+            "utf8": 1
+          }
+        }
+      ],
+      "scripts": [
+        "Gadget page tool.core.js",
+        "Gadget page tool.messages.js",
+        "Gadget page tool.card.js"
+      ],
+      "styles": [
+        "/w/index.php?title=משתמש:בוט_גאון_הירדן/Gadget_page_tool.css&action=raw&ctype=text/css"
+      ]
+    },
+    {
+      "step": "1:פתיחת-פרטים",
+      "dom": {
+        "tool": [
+          "div#hmk-tool.hmk-tool",
+          "  div.hmk-card.hmk-card-warning [dir=rtl]",
+          "    svg.hmk-icon",
+          "    div.hmk-body",
+          "      div.hmk-title \"הערך הועבר בוויקיפדיה למרחב טיוטה\"",
+          "      div.hmk-text \"המעקב נעצר כאן - הכלי אינו עוקב אחרי מרחבי-שם שאינם המרחב הראשי.\"",
+          "      div.hmk-action-status [role=status hidden]",
+          "      div.hmk-actions",
+          "        button.hmk-btn.hmk-btn-danger \"בקשת מחיקה\"",
+          "    button.hmk-arrow.hmk-arrow-open [title=פרטים aria-label=פרטים aria-expanded=true]",
+          "  div.hmk-panel [dir=rtl]",
+          "    div",
+          "      div.hmk-overview.hmk-overview-2",
+          "        div.hmk-overview-item.hmk-overview-item-warning",
+          "          div.hmk-overview-label \"מה קרה בוויקיפדיה\"",
+          "          div.hmk-overview-main \"הועבר מחוץ למרחב הערכים\"",
+          "          div.hmk-overview-sub \"היעד: טיוטה:מקומי\"",
+          "      section.hmk-tech",
+          "        div.hmk-section-title \"פרטי הזיהוי\"",
+          "        div.hmk-tech-grid",
+          "          div.hmk-row",
+          "            span.hmk-row-label \"זוהה לפי:\"",
+          "            span.hmk-row-val \"יומן ההעברות\"",
+          "      section.hmk-log-section",
+          "        div.hmk-section-title \"יומן ההעברות והמחיקות בוויקיפדיה\"",
+          "        ul.hmk-log-list",
+          "          li.hmk-log-item",
+          "            span.hmk-log-time \"12:30, 1 בפברואר 2026\"",
+          "            \" — \"",
+          "            a.mw-userlink [href=https://he.wikipedia.org/wiki/משתמש:Mover target=_blank] \"Mover\"",
+          "            \"העביר את הדף\"",
+          "            \" לשם \"",
+          "            a [href=https://he.wikipedia.org/wiki/טיוטה:מקומי target=_blank] \"טיוטה:מקומי\"",
+          "            \" · עם הפניה\"",
+          "            span.hmk-log-comment \"(הועבר לטיוטה)\""
+        ]
+      },
+      "scripts": [
+        "Gadget page tool.details.js"
+      ]
+    }
+  ]
+}
