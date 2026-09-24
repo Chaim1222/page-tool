@@ -639,9 +639,9 @@
           busy: false,
           editing: false,
         };
-        if (typeof content.text !== "string") row.note = STR.contentUnchecked;
+        var parsed = typeof content.text === "string" ? parseRedirectLine(content.text) : null;
+        if (!parsed) row.note = STR.contentUnchecked;
         else {
-          var parsed = parseRedirectLine(content.text);
           row.prepared = retarget(content.text, parsed, localTitle);
           row.text = row.prepared;
           row.wpTarget = parsed.target;

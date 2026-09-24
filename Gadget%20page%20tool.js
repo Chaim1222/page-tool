@@ -1,24 +1,24 @@
 mw.loader.using("mediawiki.util").then(function () {
-  // ==== שער כניסה - זהה למקור: אילו עמודים בכלל מריצים את הכלי ====
-  const isMobileWiew =
+  // ==== שער כניסה: אילו עמודים מריצים את הכלי ====
+  const isMobileView =
     document.getElementsByClassName("minerva-header").length > 0;
   // דף שאינו קיים במכלול: מסלול נפרד ("נראה שהערך קיים בשם אחר"), שרץ גם
-  // במסך העריכה - שם נוצרים ערכים כפולים. בכל דף אחר רק בצפייה, כמו תמיד.
+  // במסך העריכה - שם נוצרים ערכים כפולים. בכל דף אחר רק בצפייה.
   const isMissingPage =
     mw.config.get("wgArticleId") === 0 &&
     mw.config.get("wgNamespaceNumber") === 0;
   const isToolAction =
     mw.config.get("wgAction") === "view" ||
     (isMissingPage && mw.config.get("wgAction") === "edit");
-  const isCategoryMatched =
-    mw.config.get("wgCategories") &&
-    mw.config.get("wgNamespaceNumber") === 0 &&
-    mw.config.get("wgPageName") != "עמוד_ראשי" &&
-    isToolAction &&
-    location.href.indexOf("&diff") == -1 &&
-    mw.config.get("wgCategories").indexOf("המכלול: ערכים שנוצרו במכלול") == -1 &&
-    mw.config.get("wgCategories").indexOf("המכלול: פירושונים שנוצרו במכלול") == -1 &&
-    mw.config.get("wgCategories").indexOf("המכלול: ערכים שתורגמו במכלול") == -1;
+  // ערכים שנכתבו במכלול אינם מוויקיפדיה, ואין מה להשוות - גם במובייל.
+  const LOCAL_CATEGORIES = [
+    "המכלול: ערכים שנוצרו במכלול",
+    "המכלול: פירושונים שנוצרו במכלול",
+    "המכלול: ערכים שתורגמו במכלול",
+  ];
+  const isLocalArticle = (mw.config.get("wgCategories") || []).some(function (cat) {
+    return LOCAL_CATEGORIES.indexOf(cat) !== -1;
+  });
   const useDirectWikipediaSource =
     mw.user.options.get("userjs-import-source") === "direct";
   const addres = useDirectWikipediaSource
@@ -26,15 +26,11 @@ mw.loader.using("mediawiki.util").then(function () {
     : "https://import.hamichlol.org.il";
 
   if (
-    (isMobileWiew || isCategoryMatched) &&
-    (mw.config.get("wgNamespaceNumber") === 0 ||
-      ((mw.config.get("wgUserGroups").includes("technicalbot") ||
-        mw.config.get("wgUserGroups").includes("bot")) &&
-        mw.config.get("wgNamespaceNumber") !== -1 &&
-        mw.config.get("wgNamespaceNumber") !== 2)) &&
+    mw.config.get("wgNamespaceNumber") === 0 &&
     !mw.config.get("wgIsMainPage") &&
     isToolAction &&
-    location.href.indexOf("&diff") === -1
+    !/[?&]diff=/.test(location.href) &&
+    !isLocalArticle
   ) {
     const MAX_CHAIN_DEPTH = 5;
 
@@ -165,15 +161,41 @@ mw.loader.using("mediawiki.util").then(function () {
       "html.skin-theme-clientpref-night .hmk-redirects-toggle:hover{background:rgba(255,255,255,.06);color:#e3e3e3}",
     ].join("");
 
+    // ==================================================================
+    // טעינת קבצי הכלי. כולם דפי משנה של אותו משתמש, ונטענים רק כשצריך.
+    // כל קובץ מגדיר משתנה גלובלי אחד, וכך יודעים שהוא נטען.
+    // ==================================================================
+    var PAGE_PREFIX = "משתמש:בוט גאון הירדן/Gadget page tool";
 
-    // משאבי הכרטיס נטענים עצל ורק כאשר תוצאה באמת דורשת כרטיס.
-    // הכרטיס עצמו נבנה רק אחרי שגם ה-CSS וגם קובץ ההודעות סיימו להיטען,
-    // כדי למנוע הבזק קצר של תוכן לא-מעוצב.
-    var CARD_STYLE_PAGE = "משתמש:בוט גאון הירדן/Gadget page tool.css";
-    var CARD_MESSAGES_PAGE = "משתמש:בוט גאון הירדן/Gadget page tool.messages.js";
-    var CARD_SCRIPT_PAGE = "משתמש:בוט גאון הירדן/Gadget page tool.card.js";
-    var CARD_MESSAGES_GLOBAL = "HMK_PAGE_TOOL_MESSAGES";
-    var CARD_SCRIPT_GLOBAL = "HMK_PAGE_TOOL_CARD_FACTORY";
+    function rawPageUrl(title, ctype) {
+      return mw.util.getUrl(title, { action: "raw", ctype: ctype });
+    }
+
+    function loadScript(suffix, globalName) {
+      if (window[globalName]) return Promise.resolve();
+      return Promise.resolve(
+        mw.loader.getScript(rawPageUrl(PAGE_PREFIX + suffix, "text/javascript"))
+      ).then(function () {
+        if (!window[globalName]) throw new Error(globalName + " missing");
+      });
+    }
+
+    // פעולה אסינכרונית שרצה פעם אחת; אחרי כשל היא תרוץ שוב בקריאה הבאה.
+    function cached(fn) {
+      var promise = null;
+      return function () {
+        if (!promise) {
+          promise = fn().catch(function (err) {
+            promise = null;
+            throw err;
+          });
+        }
+        return promise;
+      };
+    }
+
+    // משאבי הכרטיס נטענים רק כאשר תוצאה באמת דורשת כרטיס. הכרטיס נבנה
+    // רק אחרי שגם העיצוב וגם המלל נטענו, כדי שלא יהבהב בלי עיצוב.
     var cardAssetsPromise = null;
 
     // הרשאות המשתמש: זה המקום היחיד שבו ממפים הרשאות מדיה־ויקי
@@ -224,10 +246,6 @@ mw.loader.using("mediawiki.util").then(function () {
       return userCapabilitiesPromise;
     }
 
-    function rawPageUrl(title, ctype) {
-      return mw.util.getUrl(title, { action: "raw", ctype: ctype });
-    }
-
     function loadCardStylesheet() {
       return new Promise(function (resolve, reject) {
         var existing = document.getElementById("hmk-card-stylesheet");
@@ -244,7 +262,7 @@ mw.loader.using("mediawiki.util").then(function () {
         var link = document.createElement("link");
         link.id = "hmk-card-stylesheet";
         link.rel = "stylesheet";
-        link.href = rawPageUrl(CARD_STYLE_PAGE, "text/css");
+        link.href = rawPageUrl(PAGE_PREFIX + ".css", "text/css");
         link.onload = function () {
           link.setAttribute("data-hmk-loaded", "1");
           resolve();
@@ -258,32 +276,8 @@ mw.loader.using("mediawiki.util").then(function () {
     }
 
     function loadCardMessages() {
-      var existing = window[CARD_MESSAGES_GLOBAL];
-      if (existing) {
-        Object.assign(STR, existing);
-        return Promise.resolve();
-      }
-      return Promise.resolve(
-        mw.loader.getScript(rawPageUrl(CARD_MESSAGES_PAGE, "text/javascript"))
-      ).then(function () {
-        var messages = window[CARD_MESSAGES_GLOBAL];
-        if (!messages || typeof messages !== "object") {
-          throw new Error("card-messages-missing");
-        }
-        Object.assign(STR, messages);
-      });
-    }
-
-    function loadCardScript() {
-      if (typeof window[CARD_SCRIPT_GLOBAL] === "function") {
-        return Promise.resolve();
-      }
-      return Promise.resolve(
-        mw.loader.getScript(rawPageUrl(CARD_SCRIPT_PAGE, "text/javascript"))
-      ).then(function () {
-        if (typeof window[CARD_SCRIPT_GLOBAL] !== "function") {
-          throw new Error("card-script-missing");
-        }
+      return loadScript(".messages.js", "HMK_PAGE_TOOL_MESSAGES").then(function () {
+        Object.assign(STR, window.HMK_PAGE_TOOL_MESSAGES);
       });
     }
 
@@ -315,6 +309,8 @@ mw.loader.using("mediawiki.util").then(function () {
         parseRedirectLine: core.parseRedirectLine,
         toWikipediaTitle: toWikipediaTitle,
         toLocalTitle: toLocalTitle,
+        loadScript: loadScript,
+        cached: cached,
       };
     }
 
@@ -325,13 +321,11 @@ mw.loader.using("mediawiki.util").then(function () {
         loadUserCapabilities(),
         loadCardStylesheet(),
         loadCardMessages(),
-        loadCardScript(),
+        loadScript(".card.js", "HMK_PAGE_TOOL_CARD_FACTORY"),
       ])
         .then(function () {
-          var module = window[CARD_SCRIPT_GLOBAL](createCardContext());
-          if (!module || typeof module.renderResult !== "function") {
-            throw new Error("card-module-invalid");
-          }
+          var module = window.HMK_PAGE_TOOL_CARD_FACTORY(createCardContext());
+          // בלי הרשאות הכרטיס חסר פעולות, ולכן בפעם הבאה מנסים שוב.
           if (userCapabilitiesLoadFailed) cardAssetsPromise = null;
           return module;
         })
@@ -388,9 +382,6 @@ mw.loader.using("mediawiki.util").then(function () {
     // ==================================================================
     // ליבת ההכרעה - נטענת כקובץ נפרד. הקובץ הראשי נשאר שער + תצוגה.
     // ==================================================================
-    var CORE_SCRIPT_PAGE = "משתמש:בוט גאון הירדן/Gadget page tool.core.js";
-    var CORE_GLOBAL = "HMK_PAGE_TOOL_CORE_FACTORY";
-    var corePromise = null;
     var core = null;
 
     function showRetryNotice(nextAttempt, maxAttempts) {
@@ -399,35 +390,17 @@ mw.loader.using("mediawiki.util").then(function () {
       $("#hmk-tool .hmk-check-loading span").not(".hmk-spinner").text(text);
     }
 
-    function ensureCore() {
-      if (core) return Promise.resolve(core);
-      if (corePromise) return corePromise;
-
-      function createCore() {
-        if (typeof window[CORE_GLOBAL] !== "function") {
-          throw new Error("page-tool-core-missing");
-        }
-        core = window[CORE_GLOBAL]({
+    var ensureCore = cached(function () {
+      return loadScript(".core.js", "HMK_PAGE_TOOL_CORE_FACTORY").then(function () {
+        core = window.HMK_PAGE_TOOL_CORE_FACTORY({
           STR: STR,
           MAX_CHAIN_DEPTH: MAX_CHAIN_DEPTH,
           address: addres,
           onRetry: showRetryNotice,
         });
-        if (!core || typeof core.run !== "function") {
-          throw new Error("page-tool-core-invalid");
-        }
         return core;
-      }
-
-      if (typeof window[CORE_GLOBAL] === "function") {
-        corePromise = Promise.resolve().then(createCore);
-      } else {
-        corePromise = Promise.resolve(
-          mw.loader.getScript(rawPageUrl(CORE_SCRIPT_PAGE, "text/javascript"))
-        ).then(createCore);
-      }
-      return corePromise;
-    }
+      });
+    });
 
     function resultNeedsCardAssets(result) {
       if (result.status !== "found") return true;
@@ -478,16 +451,26 @@ mw.loader.using("mediawiki.util").then(function () {
     }
 
     function addEnglishLink(result) {
-      var page = result && result.page;
-      var langLinks = page && page.langlinks;
+      var langLinks = result && result.page && result.page.langlinks;
       if (!langLinks || !langLinks.length || $("#p-lang .hmk-en-link").length) return;
-      var nav = $(
-        '<div class="vector-menu-content hmk-en-link">' +
-          '<ul class="vector-menu-content-list"><li class="interlanguage-link interwiki-en"><a href=' +
-          langLinks[0].url +
-          ' title="אנגלית" lang="en" hreflang="en" class="interlanguage-link-target" target="blank">אנגלית</a></li></ul>'
+      $("#p-lang").append(
+        $("<div>", { class: "vector-menu-content hmk-en-link" }).append(
+          $("<ul>", { class: "vector-menu-content-list" }).append(
+            $("<li>", { class: "interlanguage-link interwiki-en" }).append(
+              $("<a>", {
+                href: langLinks[0].url,
+                title: "אנגלית",
+                lang: "en",
+                hreflang: "en",
+                class: "interlanguage-link-target",
+                target: "_blank",
+                rel: "noopener",
+                text: "אנגלית",
+              })
+            )
+          )
+        )
       );
-      $("#p-lang").append(nav);
     }
 
     function showFoundSize(result) {
@@ -515,10 +498,6 @@ mw.loader.using("mediawiki.util").then(function () {
     // עד הלחיצה הראשונה אין שום בקשה, וכשהגרסה בוויקיפדיה היא גרסת
     // הייבוא עצמה הפקד לא מוצג כלל, כי אין מה לבדוק.
     // ==================================================================
-    var UPDATE_SCRIPT_PAGE = "משתמש:בוט גאון הירדן/Gadget page tool.update.js";
-    var UPDATE_GLOBAL = "HMK_PAGE_TOOL_UPDATE_FACTORY";
-    var updateFeaturePromise = null;
-
     function asRevisionId(value) {
       var text = value === null || value === undefined ? "" : String(value).trim();
       return /^[1-9]\d*$/.test(text) ? text : null;
@@ -528,37 +507,18 @@ mw.loader.using("mediawiki.util").then(function () {
       return asRevisionId(core.getOwnFields()["גרסה"]);
     }
 
-    function loadUpdateFeature() {
-      if (updateFeaturePromise) return updateFeaturePromise;
-      updateFeaturePromise = (typeof window[UPDATE_GLOBAL] === "function"
-        ? Promise.resolve()
-        : Promise.resolve(
-            mw.loader.getScript(rawPageUrl(UPDATE_SCRIPT_PAGE, "text/javascript"))
-          )
-      )
-        .then(function () {
-          if (typeof window[UPDATE_GLOBAL] !== "function") {
-            throw new Error("update-script-missing");
-          }
-          var feature = window[UPDATE_GLOBAL]({
-            localQuery: core.localQuery,
-            netGet: core.netGet,
-            directWikipediaSource: useDirectWikipediaSource,
-            firstPage: core.firstPage,
-            structureError: core.structureError,
-            placePanel: placeUpdatePanel,
-          });
-          if (!feature || typeof feature.open !== "function") {
-            throw new Error("update-module-invalid");
-          }
-          return feature;
-        })
-        .catch(function (err) {
-          updateFeaturePromise = null;
-          throw err;
+    var loadUpdateFeature = cached(function () {
+      return loadScript(".update.js", "HMK_PAGE_TOOL_UPDATE_FACTORY").then(function () {
+        return window.HMK_PAGE_TOOL_UPDATE_FACTORY({
+          localQuery: core.localQuery,
+          netGet: core.netGet,
+          directWikipediaSource: useDirectWikipediaSource,
+          firstPage: core.firstPage,
+          structureError: core.structureError,
+          placePanel: placeUpdatePanel,
         });
-      return updateFeaturePromise;
-    }
+      });
+    });
 
     // החלונית יושבת בגוף הדף מתחת למכל הכלי, ולא בשורת המחוון.
     function placeUpdatePanel($panel) {
@@ -622,22 +582,13 @@ mw.loader.using("mediawiki.util").then(function () {
     // הפניות מוויקיפדיה - יכולת עצמאית בקובץ נפרד. כאן רק הטוען, הפקד
     // ומיקום החלונית. הזיהוי רץ מעצמו רק למשתמש מחובר; בלי ממצא אין פקד.
     // ==================================================================
-    var REDIRECTS_SCRIPT_PAGE = "משתמש:בוט גאון הירדן/Gadget page tool.redirects.js";
-    var REDIRECTS_GLOBAL = "HMK_PAGE_TOOL_REDIRECTS_FACTORY";
-    var redirectsFeaturePromise = null;
-
-    function loadRedirectsFeature() {
-      if (redirectsFeaturePromise) return redirectsFeaturePromise;
-      redirectsFeaturePromise = ensureCore()
+    var loadRedirectsFeature = cached(function () {
+      return ensureCore()
         .then(function () {
-          if (typeof window[REDIRECTS_GLOBAL] === "function") return;
-          return mw.loader.getScript(rawPageUrl(REDIRECTS_SCRIPT_PAGE, "text/javascript"));
+          return loadScript(".redirects.js", "HMK_PAGE_TOOL_REDIRECTS_FACTORY");
         })
         .then(function () {
-          if (typeof window[REDIRECTS_GLOBAL] !== "function") {
-            throw new Error("redirects-script-missing");
-          }
-          var feature = window[REDIRECTS_GLOBAL]({
+          return window.HMK_PAGE_TOOL_REDIRECTS_FACTORY({
             wpQuery: core.wpQuery,
             localQuery: core.localQuery,
             firstPage: core.firstPage,
@@ -651,17 +602,8 @@ mw.loader.using("mediawiki.util").then(function () {
             },
             placePanel: placeRedirectsPanel,
           });
-          if (!feature || typeof feature.detect !== "function" || typeof feature.open !== "function") {
-            throw new Error("redirects-module-invalid");
-          }
-          return feature;
-        })
-        .catch(function (err) {
-          redirectsFeaturePromise = null;
-          throw err;
         });
-      return redirectsFeaturePromise;
-    }
+    });
 
     // מתחת לחלונית "מאז הייבוא" אם היא פתוחה, אחרת מתחת למכל הכלי.
     function placeRedirectsPanel($panel) {
@@ -788,7 +730,7 @@ mw.loader.using("mediawiki.util").then(function () {
       var $redirects = makeRedirectsTrigger(shownTitle);
       if ($redirects) $wrap.append($redirects);
 
-      isMobileWiew
+      isMobileView
         ? $(".tagline").append($wrap)
         : $(".mw-indicators").append(
             $("<div>", { class: "mw-indicator" }).append($wrap)

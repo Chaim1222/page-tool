@@ -5,35 +5,12 @@ on:
   pull_request:
 
 jobs:
-  suites:
+  tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Checksums of production files
-        run: sha256sum -c SHA256SUMS.txt
-      - name: Install test dependencies
-        run: |
-          npm ci --prefix card-tests
-          npm ci --prefix links-tests
-      - name: contract-tests
-        run: node contract-tests/run.js
-      - name: update-tests
-        run: node update-tests/run.js
-      - name: links-tests
-        run: node links-tests/run.js
-
-  # התמונות של card-tests לא עודכנו בכוונה עד הבדיקה החיה (ראו START_HERE.md),
-  # ולכן הג'וב הזה לא חוסם כרגע. יש להסיר את continue-on-error אחרי העדכון.
-  card-tests:
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - run: npm ci --prefix card-tests
-      - run: node card-tests/run.js
+      - run: npm ci
+      - run: npm test

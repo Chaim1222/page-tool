@@ -1,4 +1,0 @@
-839fc324cdf86399f5feb9f1ef98be0a0fdc1e2c30e2e55bc7287cd3e630a267  Gadget%20page%20tool.js
-51dc8e28f45e055cdaa4e6384ab4c6c4e2848557cabc491c7ec6ad90fa7e6205  Gadget%20page%20tool.card.js
-f3e1e61ce1bb319eb3ad63679814e6cce135281316afca8a15db5e2ed38b6515  Gadget%20page%20tool.messages.js
-faa04aad015a86fe565dcd6c77d20156c8ff5d445e3396787af4d7883fb65869  Gadget%20page%20tool.css

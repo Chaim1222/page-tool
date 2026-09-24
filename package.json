@@ -1,0 +1,14 @@
+{
+  "name": "page-tool",
+  "private": true,
+  "description": "Page tool - גאדג'ט המכלול. הבדיקות בלבד; הקוד עצמו מודבק לאתר.",
+  "license": "UNLICENSED",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "test": "node tests/contract/run.js && node tests/update/run.js && node tests/links/run.js && node tests/card/run.js"
+  },
+  "devDependencies": {
+    "jquery": "3.7.1",
+    "jsdom": "24.1.3"
+  }
+}

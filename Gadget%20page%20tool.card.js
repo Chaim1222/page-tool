@@ -178,38 +178,18 @@
     }
 
 
-    var PREVIEW_SCRIPT_PAGE =
-      "משתמש:בוט גאון הירדן/Gadget page tool.preview.js";
-    var previewFeaturePromise = null;
-
-    function createPreviewFeature() {
-      if (!window.HMK_PAGE_TOOL_PREVIEW_FACTORY) {
-        throw new Error("preview-factory-missing");
-      }
-      return window.HMK_PAGE_TOOL_PREVIEW_FACTORY(runtime, {
-        applyLocalLinkStatus: applyLocalLinkStatus,
+    // מודול עזר שנטען רק בשימוש הראשון; כשל טעינה ינוסה שוב בפעם הבאה.
+    function lazyFeature(suffix, globalName, deps) {
+      return runtime.cached(function () {
+        return runtime.loadScript(suffix, globalName).then(function () {
+          return window[globalName](runtime, deps);
+        });
       });
     }
 
-    function loadPreviewFeature() {
-      if (!previewFeaturePromise) {
-        previewFeaturePromise = (window.HMK_PAGE_TOOL_PREVIEW_FACTORY
-          ? Promise.resolve()
-          : mw.loader.getScript(
-              mw.util.getUrl(PREVIEW_SCRIPT_PAGE, {
-                action: "raw",
-                ctype: "text/javascript",
-              })
-            )
-        )
-          .then(createPreviewFeature)
-          .catch(function (error) {
-            previewFeaturePromise = null;
-            throw error;
-          });
-      }
-      return previewFeaturePromise;
-    }
+    var loadPreviewFeature = lazyFeature(".preview.js", "HMK_PAGE_TOOL_PREVIEW_FACTORY", {
+      applyLocalLinkStatus: applyLocalLinkStatus,
+    });
 
     function bindLocalPreview($link, title, linkDestination) {
       linkDestination = linkDestination || title;
@@ -241,78 +221,20 @@
       return $link;
     }
 
-    var DETAILS_SCRIPT_PAGE =
-      "משתמש:בוט גאון הירדן/Gadget page tool.details.js";
-    var detailsFeaturePromise = null;
+    var loadDetailsFeature = lazyFeature(".details.js", "HMK_PAGE_TOOL_DETAILS_FACTORY", {
+      can: can,
+      fetchMechalolBacklinks: fetchMechalolBacklinks,
+      sourceFailureText: sourceFailureText,
+      wikipediaUrl: wikipediaUrl,
+      redirectDestination: redirectDestination,
+    });
 
-    function createDetailsFeature() {
-      if (!window.HMK_PAGE_TOOL_DETAILS_FACTORY) {
-        throw new Error("details-factory-missing");
-      }
-      return window.HMK_PAGE_TOOL_DETAILS_FACTORY(runtime, {
-        can: can,
-        fetchMechalolBacklinks: fetchMechalolBacklinks,
-        sourceFailureText: sourceFailureText,
-        wikipediaUrl: wikipediaUrl,
-        redirectDestination: redirectDestination,
-      });
-    }
-
-    function loadDetailsFeature() {
-      if (!detailsFeaturePromise) {
-        detailsFeaturePromise = (window.HMK_PAGE_TOOL_DETAILS_FACTORY
-          ? Promise.resolve()
-          : mw.loader.getScript(
-              mw.util.getUrl(DETAILS_SCRIPT_PAGE, {
-                action: "raw",
-                ctype: "text/javascript",
-              })
-            )
-        )
-          .then(createDetailsFeature)
-          .catch(function (error) {
-            detailsFeaturePromise = null;
-            throw error;
-          });
-      }
-      return detailsFeaturePromise;
-    }
-
-    var LINKS_SCRIPT_PAGE =
-      "משתמש:בוט גאון הירדן/Gadget page tool.links.js";
-    var linksFeaturePromise = null;
-
-    function createLinksFeature() {
-      if (!window.HMK_PAGE_TOOL_LINKS_FACTORY) {
-        throw new Error("links-factory-missing");
-      }
-      return window.HMK_PAGE_TOOL_LINKS_FACTORY(runtime, {
-        actionErrorMessage: actionErrorMessage,
-        wikipediaUrl: wikipediaUrl,
-        toWikipediaTitle: toWikipediaTitle,
-        extractTemplateFields: runtime.extractTemplateFields,
-      });
-    }
-
-    function loadLinksFeature() {
-      if (!linksFeaturePromise) {
-        linksFeaturePromise = (window.HMK_PAGE_TOOL_LINKS_FACTORY
-          ? Promise.resolve()
-          : mw.loader.getScript(
-              mw.util.getUrl(LINKS_SCRIPT_PAGE, {
-                action: "raw",
-                ctype: "text/javascript",
-              })
-            )
-        )
-          .then(createLinksFeature)
-          .catch(function (error) {
-            linksFeaturePromise = null;
-            throw error;
-          });
-      }
-      return linksFeaturePromise;
-    }
+    var loadLinksFeature = lazyFeature(".links.js", "HMK_PAGE_TOOL_LINKS_FACTORY", {
+      actionErrorMessage: actionErrorMessage,
+      wikipediaUrl: wikipediaUrl,
+      toWikipediaTitle: toWikipediaTitle,
+      extractTemplateFields: runtime.extractTemplateFields,
+    });
 
     // מצב הפניה בוויקיפדיה: כשל הוא מצב שלישי מפורש, לא "לא".
     function wpRedirectTarget(title) {
@@ -429,10 +351,8 @@
           lelimit: 20,
           leprop: "type|title|user|timestamp|comment|details",
         };
-        if (sinceTs) {
-          params.leend = sinceTs;
-          params.ledir = "newer";
-        }
+        // מהחדש לישן, עד זמן יצירת הדף במכלול.
+        if (sinceTs) params.leend = sinceTs;
         return wpQuery(params)
           .then(function (data) {
             if (!data.query || !Array.isArray(data.query.logevents)) {
@@ -1398,7 +1318,7 @@
         setActionBusy(rendered, true);
         setActionStatus(rendered, STR.deleteForMoveStarting, "progress");
         api
-          .postWithToken("delete", {
+          .postWithToken("csrf", {
             action: "delete",
             format: "json",
             title: to,
@@ -1843,7 +1763,6 @@
           section: section,
           appendtext: appendtext,
           summary: summary,
-          bot: true,
         })
         .then(function (data) {
           if (!data.edit) throw new Error("request-not-saved");
@@ -1961,7 +1880,7 @@
       if (suppress) moveParams.noredirect = 1;
 
       api
-        .postWithToken("move", moveParams)
+        .postWithToken("csrf", moveParams)
         .done(function (data) {
           if (!data.move) {
             failAction(rendered, STR.moveFailedTitle);
@@ -2146,6 +2065,7 @@
           action: "edit",
           format: "json",
           bot: true,
+          nocreate: 1,
           title: currentPageName,
           text: textpage,
         })
