@@ -16,15 +16,15 @@ const { serializeRegions } = require('./serialize');
 const PAGE_PREFIX = 'משתמש:בוט גאון הירדן/';
 
 const PRODUCTION_FILES = {
-  main: 'Gadget%20page%20tool.js',
-  core: 'Gadget%20page%20tool.core.js',
-  card: 'Gadget%20page%20tool.card.js',
-  details: 'Gadget%20page%20tool.details.js',
-  preview: 'Gadget%20page%20tool.preview.js',
-  messages: 'Gadget%20page%20tool.messages.js',
-  css: 'Gadget%20page%20tool.css',
-  redirects: 'Gadget%20page%20tool.redirects.js',
-  links: 'Gadget%20page%20tool.links.js',
+  main: 'site/main.js',
+  core: 'site/core.js',
+  card: 'site/card.js',
+  details: 'site/details.js',
+  preview: 'site/preview.js',
+  messages: 'site/messages.js',
+  css: 'site/style.css',
+  redirects: 'site/redirects.js',
+  links: 'site/links.js',
 };
 
 // שם הדף באתר → מפתח הקובץ. הטוען מגיש רק את מה שמופיע כאן.

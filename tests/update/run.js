@@ -14,8 +14,8 @@ const ROOT = path.join(__dirname, '..', '..');
 const req = (name) => require(require.resolve(name, { paths: [ROOT] }));
 const { JSDOM, VirtualConsole } = req('jsdom');
 const JQUERY = fs.readFileSync(require.resolve('jquery/dist/jquery.js', { paths: [ROOT] }), 'utf8');
-const MAIN = fs.readFileSync(path.join(ROOT, 'Gadget%20page%20tool.js'), 'utf8');
-const UPDATE = fs.readFileSync(path.join(ROOT, 'Gadget%20page%20tool.update.js'), 'utf8');
+const MAIN = fs.readFileSync(path.join(ROOT, 'site/main.js'), 'utf8');
+const UPDATE = fs.readFileSync(path.join(ROOT, 'site/update.js'), 'utf8');
 
 const DAY = 86400000;
 const ago = (ms) => new Date(Date.now() - ms).toISOString();

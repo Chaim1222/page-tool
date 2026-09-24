@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 
 function duplicateMessageKeys(toolDir) {
-  const src = fs.readFileSync(path.join(toolDir, 'Gadget%20page%20tool.messages.js'), 'utf8');
+  const src = fs.readFileSync(path.join(toolDir, 'site/messages.js'), 'utf8');
   const seen = new Map();
   const dups = [];
   for (const m of src.matchAll(/^ {2}([A-Za-z0-9_]+):/gm)) {

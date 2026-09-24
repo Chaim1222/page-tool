@@ -363,8 +363,7 @@ async function runScenario(sourcePath, scenario, timeoutMs = 1000) {
   let source = fs.readFileSync(sourcePath, 'utf8');
   source = injectHooks(source);
   const siblingCore = [
-    'Gadget%20page%20tool.core.js',
-    'Gadget page tool.core.js',
+    'core.js',
   ].map((name) => require('path').join(require('path').dirname(sourcePath), name))
     .find((candidate) => fs.existsSync(candidate));
 

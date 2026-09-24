@@ -23,11 +23,11 @@ function resolveTarget(input) {
   if (fs.statSync(base).isFile()) {
     return { type: base.includes('.core.') ? 'core' : 'legacy', path: base };
   }
-  for (const name of ['Gadget%20page%20tool.core.js', 'Gadget page tool.core.js']) {
+  for (const name of ['site/core.js']) {
     const f = path.join(base, name);
     if (fs.existsSync(f)) return { type: 'core', path: f };
   }
-  for (const name of ['Gadget%20page%20tool.js', 'Gadget page tool.js']) {
+  for (const name of ['site/main.js']) {
     const f = path.join(base, name);
     if (fs.existsSync(f)) return { type: 'legacy', path: f };
   }

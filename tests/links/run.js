@@ -6,9 +6,9 @@ const fs = require("fs");
 const path = require("path");
 
 const ROOT = path.join(__dirname, "..", "..");
-const MODULE = fs.readFileSync(path.join(ROOT, "Gadget%20page%20tool.links.js"), "utf8");
-const CORE = fs.readFileSync(path.join(ROOT, "Gadget%20page%20tool.core.js"), "utf8");
-const MESSAGES = fs.readFileSync(path.join(ROOT, "Gadget%20page%20tool.messages.js"), "utf8");
+const MODULE = fs.readFileSync(path.join(ROOT, "site/links.js"), "utf8");
+const CORE = fs.readFileSync(path.join(ROOT, "site/core.js"), "utf8");
+const MESSAGES = fs.readFileSync(path.join(ROOT, "site/messages.js"), "utf8");
 
 const vc = new VirtualConsole();
 vc.on("jsdomError", (e) => console.log("שגיאת דפדפן:", e.message));
