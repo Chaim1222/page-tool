@@ -62,9 +62,11 @@ const runtime = {
   firstPage: (d) => d.query.pages[d.query.pageids[0]],
   structureError: (m) => new Error(m),
 };
-// מפענח שורת ההפניה מגיע מהליבה, כמו בכלי עצמו.
+// מפענח שורת ההפניה והשוואת הכותרות מגיעים מהליבה, כמו בכלי עצמו.
 w.eval(CORE);
-runtime.parseRedirectLine = w.HMK_PAGE_TOOL_CORE_FACTORY({ STR: {}, MAX_CHAIN_DEPTH: 5, address: "", onRetry() {} }).parseRedirectLine;
+const realCore = w.HMK_PAGE_TOOL_CORE_FACTORY({ STR: {}, MAX_CHAIN_DEPTH: 5, address: "", onRetry() {} });
+runtime.parseRedirectLine = realCore.parseRedirectLine;
+runtime.sameTitle = realCore.sameTitle;
 w.eval(MODULE);
 const F = w.HMK_PAGE_TOOL_LINKS_FACTORY(runtime, {
   actionErrorMessage: (p, e) => p + " " + ((e && e.message) || ""),

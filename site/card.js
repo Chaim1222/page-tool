@@ -50,13 +50,7 @@
         : can("moveWithRedirect");
     }
 
-    function sameTitle(a, b) {
-      return normalizeTitle(a) === normalizeTitle(b);
-    }
-
-    function normalizeFragment(fragment) {
-      return fragment ? String(fragment).replace(/_/g, " ").trim() : "";
-    }
+    var sameTitle = runtime.sameTitle;
 
     function withoutFragment(title) {
       return String(title || "").split("#")[0];
@@ -344,21 +338,9 @@
     // שכן נבדק ומסמנים שהיומן חלקי. כך מערך ריק אינו מתחזה ליומן מלא.
     function fetchMoveDeleteLog(title, sinceTs) {
       function byType(type) {
-        var params = {
-          list: "logevents",
-          letitle: title,
-          letype: type,
-          lelimit: 20,
-          leprop: "type|title|user|timestamp|comment|details",
-        };
-        // מהחדש לישן, עד זמן יצירת הדף במכלול.
-        if (sinceTs) params.leend = sinceTs;
-        return wpQuery(params)
-          .then(function (data) {
-            if (!data.query || !Array.isArray(data.query.logevents)) {
-              throw structureError("יומן " + type);
-            }
-            return { events: data.query.logevents, failed: false, type: type };
+        return runtime.fetchLog(title, type, sinceTs)
+          .then(function (events) {
+            return { events: events, failed: false, type: type };
           })
           .catch(function (err) {
             if (err && err.silent) throw err;
@@ -404,7 +386,7 @@
         var nextTitle = moveEvent.params.target_title;
         if (
           finalTarget &&
-          normalizeTitle(nextTitle) === normalizeTitle(finalTarget)
+          sameTitle(nextTitle, finalTarget)
         ) {
           return data;
         }
@@ -848,11 +830,11 @@
         var targetRedirectsElsewhere = targetStatus === "redirect" && !targetRedirectsHere;
         var redirectToTarget =
           !wpOld.failed && wpOld.redirect === true &&
-          normalizeTitle(wpOld.target) === normalizeTitle(wpTarget);
+          sameTitle(wpOld.target, wpTarget);
         var suppress = wpOld.failed ? false : !redirectToTarget;
         var targetIdentity =
           targetStatus === "article" ? describeIdentity(runtime.getOwnFields(), targetData.fields) : null;
-        var targetIsCurrentPage = normalizeTitle(oldname) === normalizeTitle(target);
+        var targetIsCurrentPage = sameTitle(oldname, target);
         var targetSameIdentity = !!targetIdentity && targetIdentity.verdict === "same";
         var action, label, reason;
 
@@ -2287,7 +2269,7 @@
               !!wp &&
               sameTitle(toWikipediaTitle(local.title), wp.title) &&
               (result.status !== "redirect" ||
-                normalizeFragment(local.fragment) === normalizeFragment(wp.fragment));
+                normalizeTitle(local.fragment) === normalizeTitle(wp.fragment));
             if (same) {
               clearTool();
               runtime.showMatchIndicator();

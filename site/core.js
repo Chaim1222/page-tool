@@ -15,11 +15,36 @@
       return (t || "").replace(/_/g, " ").trim();
     }
 
-    // פסקה בהפניה מוחזרת מה-API בנפרד ב-tofragment. להשוואת מצב
-    // מנרמלים אותה בנפרד מהכותרת, כדי שהפניה לדף עצמו לא תיחשב
-    // זהה להפניה לפסקה אחרת באותו דף.
-    function normalizeRedirectFragment(fragment) {
-      return (fragment || "").replace(/_/g, " ").trim();
+    // האם שתי כותרות הן אותו דף: קו תחתון כרווח, רווחים כפולים, והאות
+    // הראשונה אינה תלוית רישיות במדיה־ויקי.
+    function sameTitle(a, b) {
+      a = normalizeTitle(a).replace(/\s+/g, " ");
+      b = normalizeTitle(b).replace(/\s+/g, " ");
+      return a.charAt(0).toUpperCase() + a.slice(1) === b.charAt(0).toUpperCase() + b.slice(1);
+    }
+
+    // האם לתוצאה יש אזהרה על מסלול הזיהוי (גרסה שנמחקה או מקור שנכשל).
+    function hasWarnings(result) {
+      return !!(result.revidDeletedNotice || (result.sourceFailures && result.sourceFailures.length));
+    }
+
+    // יומן ויקיפדיה לכותרת, לסוג אירוע אחד. sinceTs: רק אירועים מאז
+    // (מהחדש לישן, עד הזמן הזה).
+    function fetchLog(title, type, sinceTs) {
+      var params = {
+        list: "logevents",
+        letitle: title,
+        letype: type,
+        lelimit: 20,
+        leprop: "ids|title|type|user|timestamp|comment|details",
+      };
+      if (sinceTs) params.leend = sinceTs;
+      return wpQuery(params).then(function (data) {
+        if (!data.query || !Array.isArray(data.query.logevents)) {
+          throw structureError("יומן " + type);
+        }
+        return data.query.logevents;
+      });
     }
 
     // ==================================================================
@@ -522,7 +547,7 @@
 
       if (
         result.status === "redirect" &&
-        normalizeTitle(result.target) === normalizeTitle(baseline)
+        sameTitle(result.target, baseline)
       ) {
         return resolveTitleChain(result.target)
           .then(function (resolved) {
@@ -563,7 +588,7 @@
     function applyRenameCheck(result, baseline) {
       if (result.status !== "found" && result.status !== "disambiguation")
         return result;
-      if (normalizeTitle(result.title) === normalizeTitle(baseline)) return result;
+      if (sameTitle(result.title, baseline)) return result;
       return {
         status: "renamed",
         title: result.title,
@@ -705,23 +730,7 @@
     // כראיה בלבד, ורק אם לא נמצאה ראיה מאוחרת יותר. כשל באחת השאילתות
     // אינו "אין אירוע" אלא כשל שממשיך למעלה.
     function checkMoveOrDelete(title, depth, visited, moveLog) {
-      var baseParams = {
-        list: "logevents",
-        letitle: title,
-        lelimit: 20,
-        leprop: "ids|title|type|user|timestamp|comment|details",
-      };
-
-      function eventsByType(type) {
-        return wpQuery(Object.assign({}, baseParams, { letype: type })).then(function (data) {
-          if (!data.query || !Array.isArray(data.query.logevents)) {
-            throw structureError("יומן " + type);
-          }
-          return data.query.logevents;
-        });
-      }
-
-      return Promise.all([eventsByType("move"), eventsByType("delete")]).then(
+      return Promise.all([fetchLog(title, "move"), fetchLog(title, "delete")]).then(
         function (results) {
           // בלי זמן יצירה אין גבול תחתון, וכל אירוע ישן היה משתתף בהכרעה.
           // כשיש אירועים ביומן זה כשל גלוי ולא מסקנה; כשהיומן ריק, "לא ידוע"
@@ -872,9 +881,8 @@
         return fetchLocalRedirectTarget(currentPageName)
           .then(function (localTarget) {
             return (
-              normalizeTitle(localTarget.title) === normalizeTitle(result.target) &&
-              normalizeRedirectFragment(localTarget.fragment) ===
-                normalizeRedirectFragment(result.targetFragment)
+              sameTitle(localTarget.title, result.target) &&
+              normalizeTitle(localTarget.fragment) === normalizeTitle(result.targetFragment)
             );
           })
           .catch(function (err) {
@@ -948,13 +956,7 @@
         })
         .then(function (result) {
           return localStateMatches(result).then(function (matches) {
-            if (
-              matches &&
-              (result.revidDeletedNotice ||
-                (result.sourceFailures && result.sourceFailures.length))
-            ) {
-              result.localStateMatched = true;
-            }
+            if (matches && hasWarnings(result)) result.localStateMatched = true;
             return { result: result, localStateMatched: matches };
           });
         });
@@ -963,6 +965,9 @@
     return {
       run: run,
       normalizeTitle: normalizeTitle,
+      sameTitle: sameTitle,
+      hasWarnings: hasWarnings,
+      fetchLog: fetchLog,
       filterAndSortLog: filterAndSortLog,
       fetchLocalPageData: fetchLocalPageData,
       wpQuery: wpQuery,

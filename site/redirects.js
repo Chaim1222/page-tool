@@ -16,7 +16,6 @@
     var normalizeTitle = runtime.normalizeTitle;
     var parseRedirectLine = runtime.parseRedirectLine;
     var loadCapabilities = runtime.loadCapabilities;
-    var placePanel = runtime.placePanel;
     var api = new mw.Api();
 
     var BATCH = 50;
@@ -36,7 +35,6 @@
     // ================================================================
     var STR = {
       panelTitle: "הפניות מוויקיפדיה",
-      close: "סגירה",
       retry: "נסה שוב",
       loading: "טוען את ההפניות…",
       loadFailed: "טעינת ההפניות נכשלה.",
@@ -80,14 +78,6 @@
     // ================================================================
     mw.util.addCSS(
       [
-        ".hmk-redirects-panel{direction:rtl;clear:both;margin:0 0 1rem;border:1px solid #c8ccd1;",
-        "border-radius:6px;background:#fff;font-size:.875rem;line-height:1.5;color:#202122}",
-        ".hmk-redirects-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;",
-        "padding:.45rem .7rem;border-bottom:1px solid #eaecf0;background:#f8f9fa;",
-        "border-radius:6px 6px 0 0;font-weight:600}",
-        ".hmk-redirects-close{border:0;background:transparent;padding:.1rem .3rem;color:#54595d;",
-        "cursor:pointer;font:inherit;font-size:1.1rem;line-height:1}",
-        ".hmk-redirects-close:hover{color:#202122}",
         ".hmk-redirects-body{padding:.55rem .7rem;display:flex;flex-direction:column;gap:.45rem}",
         ".hmk-redirects-line{margin:0}",
         ".hmk-redirects-muted{color:#54595d}",
@@ -117,11 +107,8 @@
         ".hmk-redirects-status-error{color:#a5341f}",
         ".hmk-redirects-status-success{color:#12735d}",
         ".hmk-redirects-separate{margin:0;padding-inline-start:1.2rem}",
-        ".hmk-redirects-close:focus-visible,.hmk-redirects-btn:focus-visible,.hmk-redirects-retry:focus-visible,",
+        ".hmk-redirects-btn:focus-visible,.hmk-redirects-retry:focus-visible,",
         ".hmk-redirects-text:focus-visible{outline:2px solid #36c;outline-offset:1px}",
-        "html.skin-theme-clientpref-night .hmk-redirects-panel{border-color:#3c4043;background:#202122;color:#e3e3e3}",
-        "html.skin-theme-clientpref-night .hmk-redirects-head{border-bottom-color:#3c4043;background:#27282c}",
-        "html.skin-theme-clientpref-night .hmk-redirects-close,",
         "html.skin-theme-clientpref-night .hmk-redirects-muted,",
         "html.skin-theme-clientpref-night .hmk-redirects-note,",
         "html.skin-theme-clientpref-night .hmk-redirects-table th{color:#b7b7b7}",
@@ -139,9 +126,7 @@
     // ================================================================
     // עזרים
     // ================================================================
-    function sameTitle(a, b) {
-      return normalizeTitle(a) === normalizeTitle(b);
-    }
+    var sameTitle = runtime.sameTitle;
 
     function chunks(list, size) {
       var out = [];
@@ -369,7 +354,6 @@
     }
 
     function open(options) {
-      var $toggle = options.$toggle;
       var localTitle = normalizeTitle(options.localTitle);
       var detection = options.detection;
       var onCountChange = options.onCountChange;
@@ -378,33 +362,11 @@
       var canImport = false;
       var locked = false;
 
-      var $close = $("<button>", {
-        type: "button",
-        class: "hmk-redirects-close",
-        text: "×",
-        title: STR.close,
-        "aria-label": STR.close,
-      });
       var $body = $("<div>", { class: "hmk-redirects-body" });
-      var $panel = $("<section>", {
-        id: "hmk-redirects-panel",
-        class: "hmk-redirects-panel",
-        dir: "rtl",
-      }).append(
-        $("<div>", { class: "hmk-redirects-head" })
-          .append($("<span>", { text: STR.panelTitle }))
-          .append($close),
-        $body
-      );
 
       var $selectAll = $("<button>", { type: "button", class: "hmk-redirects-btn hmk-redirects-select-all" });
       var $importSelected = $("<button>", { type: "button", class: "hmk-redirects-btn hmk-redirects-import-selected" });
       var $summary = $("<p>", { class: "hmk-redirects-line hmk-redirects-summary" }).hide();
-
-      function setVisible(visible) {
-        visible ? $panel.show() : $panel.hide();
-        $toggle.attr("aria-expanded", visible ? "true" : "false");
-      }
 
       function isSelectable(row) {
         return canImport && row.kind === "missing" && row.text !== null && !row.logFailed && !row.done;
@@ -758,20 +720,9 @@
         importRows(checkedRows(), true);
       });
 
-      $close.on("click", function () {
-        setVisible(false);
-        $toggle.trigger("focus");
-      });
-
-      placePanel($panel);
-      setVisible(true);
+      var panel = runtime.openPanel("redirects", STR.panelTitle, options.$toggle, $body);
       load();
-
-      return {
-        toggle: function () {
-          setVisible(!$panel.is(":visible"));
-        },
-      };
+      return panel;
     }
 
     return { detect: detect, open: open, tagMonitors: tagMonitors, STR: STR };

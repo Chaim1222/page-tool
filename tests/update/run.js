@@ -108,6 +108,7 @@ async function boot(spec = {}) {
       });
     },
     getCurrentLocalPage() { return { size: 42000 }; },
+    hasWarnings(r) { return !!(r.revidDeletedNotice || (r.sourceFailures && r.sourceFailures.length)); },
     getOwnFields() { return { דף: 'בסיס', גרסה: spec.imported === undefined ? '100' : spec.imported, פריט: null }; },
     firstPage(data) {
       const q = data && data.query;

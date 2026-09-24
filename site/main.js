@@ -110,6 +110,7 @@ mw.loader.using("mediawiki.util").then(function () {
       sizeWikiEqual: "ויקיפדיה: זהה",
       sizeNotChecked: "השוואת הגודל: לא נבדקה",
       matchRedirect: "✓ ההפניה תואמת לוויקיפדיה",
+      panelClose: "סגירה",
       assetLoadFailed: "לא ניתן לטעון את משאבי הכרטיס. רענן את הדף ונסה שוב.",
       detailsLoadFailed: "לא ניתן לטעון את פרטי הכרטיס. סגור ופתח שוב את הפרטים כדי לנסות מחדש.",
       logFloorUnchecked:
@@ -160,6 +161,18 @@ mw.loader.using("mediawiki.util").then(function () {
       "html.skin-theme-clientpref-night .hmk-update-toggle,html.skin-theme-clientpref-night .hmk-redirects-toggle{color:#b7b7b7}",
       "html.skin-theme-clientpref-night .hmk-update-toggle:hover,",
       "html.skin-theme-clientpref-night .hmk-redirects-toggle:hover{background:rgba(255,255,255,.06);color:#e3e3e3}",
+      // מסגרת החלוניות שמתחת לכותרת ("מאז הייבוא", "הפניות מוויקיפדיה").
+      ".hmk-box{direction:rtl;clear:both;margin:0 0 1rem;border:1px solid #c8ccd1;border-radius:6px;",
+      "background:#fff;font-size:.875rem;line-height:1.5;color:#202122}",
+      ".hmk-box-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;",
+      "padding:.45rem .7rem;border-bottom:1px solid #eaecf0;background:#f8f9fa;border-radius:6px 6px 0 0;font-weight:600}",
+      ".hmk-box-close{border:0;background:transparent;padding:.1rem .3rem;color:#54595d;cursor:pointer;",
+      "font:inherit;font-size:1.1rem;line-height:1}",
+      ".hmk-box-close:hover{color:#202122}",
+      ".hmk-box-close:focus-visible{outline:2px solid #36c;outline-offset:1px}",
+      "html.skin-theme-clientpref-night .hmk-box{border-color:#3c4043;background:#202122;color:#e3e3e3}",
+      "html.skin-theme-clientpref-night .hmk-box-head{border-bottom-color:#3c4043;background:#27282c}",
+      "html.skin-theme-clientpref-night .hmk-box-close{color:#b7b7b7}",
     ].join("");
 
     // ==================================================================
@@ -287,6 +300,8 @@ mw.loader.using("mediawiki.util").then(function () {
         STR: STR,
         MAX_CHAIN_DEPTH: MAX_CHAIN_DEPTH,
         normalizeTitle: core.normalizeTitle,
+        sameTitle: core.sameTitle,
+        fetchLog: core.fetchLog,
         filterAndSortLog: core.filterAndSortLog,
         fetchLocalPageData: core.fetchLocalPageData,
         wpQuery: core.wpQuery,
@@ -303,7 +318,6 @@ mw.loader.using("mediawiki.util").then(function () {
         getOwnFields: core.getOwnFields,
         getLocalCreationTs: core.getLocalCreationTs,
         getLocalCreationFailed: core.getLocalCreationFailed,
-        getCurrentLocalPage: core.getCurrentLocalPage,
         userCapabilities: userCapabilities,
         userCapabilitiesLoadFailed: userCapabilitiesLoadFailed,
         replaceWikipediaSortPageField: core.replaceWikipediaSortPageField,
@@ -404,52 +418,26 @@ mw.loader.using("mediawiki.util").then(function () {
       });
     });
 
-    function resultNeedsCardAssets(result) {
-      if (result.status !== "found") return true;
-      return !!(
-        result.revidDeletedNotice ||
-        (result.sourceFailures && result.sourceFailures.length)
-      );
+    // משאבי הכרטיס, עם ניסיון נוסף אחד. כשל בטעינה אינו כשל של הבדיקה:
+    // ההכרעה כבר התקבלה, ולכן אחרי שני כשלים מוצגת הודעת כשל הטעינה
+    // (onFail). חריגה בזמן בניית הכרטיס עצמו היא תקלה בקוד וממשיכה הלאה.
+    function withCard(fn, onFail) {
+      return ensureCardAssets()
+        .catch(function (err) {
+          console.error(err);
+          return ensureCardAssets();
+        })
+        .then(fn, onFail || showAssetLoadFailure);
     }
 
     function renderResultWhenReady(result) {
-      if (!resultNeedsCardAssets(result)) {
+      if (result.status === "found" && !core.hasWarnings(result)) {
         renderFoundWithoutCard(result);
         return Promise.resolve();
       }
-      // כשל בטעינת משאבי הכרטיס אינו כשל של הבדיקה: ההכרעה כבר התקבלה.
-      // לכן מנסים לטעון פעם נוספת ומציגים את התוצאה עצמה, ורק אם גם זה
-      // נכשל מציגים את הודעת כשל הטעינה. חריגה בזמן בניית הכרטיס עצמו
-      // היא תקלה בקוד, והיא ממשיכה לכרטיס הכשל כמו קודם.
-      return ensureCardAssets()
-        .catch(function (err) {
-          console.error(err);
-          return ensureCardAssets();
-        })
-        .then(function (card) {
-          card.renderResult(result);
-        }, showAssetLoadFailure);
-    }
-
-    // דף שהוא הפניה במכלול עובר תמיד למסלול ההפניות של הכרטיס: לא מחוון
-    // גודל, לא "מאז הייבוא", ולא כרטיסי ההעברה והמחיקה של ערך.
-    function renderLocalRedirectWhenReady(result) {
-      return ensureCardAssets()
-        .catch(function (err) {
-          console.error(err);
-          return ensureCardAssets();
-        })
-        .then(function (card) {
-          return card.renderLocalRedirect(result);
-        }, showAssetLoadFailure);
-    }
-
-    function showFailureCardWhenReady(error) {
-      return ensureCardAssets()
-        .then(function (card) {
-          card.showFailure(error);
-        })
-        .catch(showAssetLoadFailure);
+      return withCard(function (card) {
+        card.renderResult(result);
+      });
     }
 
     function addEnglishLink(result) {
@@ -517,17 +505,60 @@ mw.loader.using("mediawiki.util").then(function () {
           directWikipediaSource: useDirectWikipediaSource,
           firstPage: core.firstPage,
           structureError: core.structureError,
-          placePanel: placeUpdatePanel,
+          openPanel: openPanel,
         });
       });
     });
 
     // החלונית יושבת בגוף הדף מתחת למכל הכלי, ולא בשורת המחוון.
-    function placeUpdatePanel($panel) {
-      $("#hmk-update-panel").not($panel).remove();
-      var $tool = $("#hmk-tool");
-      if ($tool.length) $tool.after($panel);
+    // פקד קטן ליד המחוון, שפותח חלונית מתחת לכותרת.
+    function makeToggle(name, text) {
+      var $label = $("<span>", { text: text });
+      var $toggle = $("<button>", {
+        type: "button",
+        class: "hmk-" + name + "-toggle",
+        "aria-expanded": "false",
+        "aria-controls": "hmk-" + name + "-panel",
+      })
+        .append($label)
+        .append($("<span>", { class: "hmk-update-chevron", text: "▾", "aria-hidden": "true" }));
+      return { $toggle: $toggle, $label: $label };
+    }
+
+    // חלונית מתחת לכותרת: כותרת, כפתור סגירה, והפקד שפותח וסוגר אותה.
+    // "מאז הייבוא" מופיעה ראשונה, ו"הפניות מוויקיפדיה" אחריה.
+    function openPanel(name, title, $toggle, $body) {
+      var $close = $("<button>", {
+        type: "button",
+        class: "hmk-box-close hmk-" + name + "-close",
+        text: "×",
+        title: STR.panelClose,
+        "aria-label": STR.panelClose,
+      });
+      var $panel = $("<section>", { id: "hmk-" + name + "-panel", class: "hmk-box hmk-" + name + "-panel", dir: "rtl" })
+        .append($("<div>", { class: "hmk-box-head" }).append($("<span>", { text: title }), $close), $body);
+
+      function setVisible(visible) {
+        $panel.toggle(visible);
+        $toggle.attr("aria-expanded", visible ? "true" : "false");
+      }
+      $close.on("click", function () {
+        setVisible(false);
+        $toggle.trigger("focus");
+      });
+
+      ensureStyles();
+      $("#" + $panel.attr("id")).remove();
+      var $anchor = $("#hmk-update-panel");
+      if (!$anchor.length) $anchor = $("#hmk-tool");
+      if ($anchor.length) $anchor.after($panel);
       else $("#bodyContent").prepend($panel);
+      setVisible(true);
+      return {
+        toggle: function () {
+          setVisible(!$panel.is(":visible"));
+        },
+      };
     }
 
     function makeUpdateTrigger(wikiTitle, currentRevision) {
@@ -537,15 +568,9 @@ mw.loader.using("mediawiki.util").then(function () {
 
       var controller = null;
       var loading = false;
-      var $label = $("<span>", { text: STR.updateTrigger });
-      var $toggle = $("<button>", {
-        type: "button",
-        class: "hmk-update-toggle",
-        "aria-expanded": "false",
-        "aria-controls": "hmk-update-panel",
-      })
-        .append($label)
-        .append($("<span>", { class: "hmk-update-chevron", text: "▾", "aria-hidden": "true" }));
+      var toggle = makeToggle("update", STR.updateTrigger);
+      var $toggle = toggle.$toggle;
+      var $label = toggle.$label;
 
       $toggle.on("click", function () {
         if (loading) return;
@@ -596,41 +621,26 @@ mw.loader.using("mediawiki.util").then(function () {
             firstPage: core.firstPage,
             structureError: core.structureError,
             normalizeTitle: core.normalizeTitle,
+            sameTitle: core.sameTitle,
             parseRedirectLine: core.parseRedirectLine,
             loadCapabilities: function () {
               return loadUserCapabilities().then(function (caps) {
                 return { caps: caps, failed: userCapabilitiesLoadFailed };
               });
             },
-            placePanel: placeRedirectsPanel,
+            openPanel: openPanel,
           });
         });
     });
-
-    // מתחת לחלונית "מאז הייבוא" אם היא פתוחה, אחרת מתחת למכל הכלי.
-    function placeRedirectsPanel($panel) {
-      $("#hmk-redirects-panel").not($panel).remove();
-      var $anchor = $("#hmk-update-panel");
-      if (!$anchor.length) $anchor = $("#hmk-tool");
-      if ($anchor.length) $anchor.after($panel);
-      else $("#bodyContent").prepend($panel);
-    }
 
     function makeRedirectsTrigger(wikiTitle) {
       if (!mw.config.get("wgUserName")) return null;
       var localTitle = mw.config.get("wgPageName").replace(/_/g, " ");
       var detection = null;
       var controller = null;
-      var $label = $("<span>");
-      var $toggle = $("<button>", {
-        type: "button",
-        class: "hmk-redirects-toggle",
-        "aria-expanded": "false",
-        "aria-controls": "hmk-redirects-panel",
-      })
-        .append($label)
-        .append($("<span>", { class: "hmk-update-chevron", text: "▾", "aria-hidden": "true" }))
-        .hide();
+      var toggle = makeToggle("redirects", "");
+      var $toggle = toggle.$toggle.hide();
+      var $label = toggle.$label;
 
       function setCounts(missing, separate) {
         $label.text(STR.redirectsTrigger(missing, separate));
@@ -684,14 +694,14 @@ mw.loader.using("mediawiki.util").then(function () {
         .then(function (feature) {
           return feature.detect(PageName, localTitle).then(function (result) {
             if (!result.separate.length) return;
-            return ensureCardAssets()
-              .catch(function (err) {
-                console.error(err);
-                return ensureCardAssets();
-              })
-              .then(function (card) {
+            return withCard(
+              function (card) {
                 card.renderMissingPage(result.separate, feature);
-              });
+              },
+              function (err) {
+                throw err;
+              }
+            );
           });
         })
         .catch(function (err) {
@@ -788,24 +798,28 @@ mw.loader.using("mediawiki.util").then(function () {
             // הפניה לאותו יעד כמו בוויקיפדיה: סימן ירוק, בלי פעולות. אם יש
             // אזהרה על מסלול הזיהוי, היא מוצגת בנוסף.
             showMatchIndicator();
-            if (
-              result.revidDeletedNotice ||
-              (result.sourceFailures && result.sourceFailures.length)
-            ) {
-              return renderResultWhenReady(result);
-            }
+            if (core.hasWarnings(result)) return renderResultWhenReady(result);
             clearTool();
             return;
           }
+          // דף שהוא הפניה במכלול: מסלול ההפניות של הכרטיס, בלי מחוון גודל,
+          // "מאז הייבוא" או העברה ומחיקה של ערך.
           if (core.getCurrentLocalPage().status === "redirect") {
-            return renderLocalRedirectWhenReady(result);
+            return withCard(function (card) {
+              return card.renderLocalRedirect(result);
+            });
           }
           return renderResultWhenReady(result);
         })
         .catch(function (e) {
           if (e && e.silent) return;
           console.error(e);
-          return showFailureCardWhenReady(e);
+          // בלי ניסיון נוסף: אם הליבה עצמה לא נטענה, גם הכרטיס לא ייבנה.
+          return ensureCardAssets()
+            .then(function (card) {
+              card.showFailure(e);
+            })
+            .catch(showAssetLoadFailure);
         });
     }
 

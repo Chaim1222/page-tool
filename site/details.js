@@ -5,6 +5,7 @@
   window.HMK_PAGE_TOOL_DETAILS_FACTORY = function (runtime, deps) {
     var STR = runtime.STR;
     var normalizeTitle = runtime.normalizeTitle;
+    var sameTitle = runtime.sameTitle;
     var can = deps.can;
     var fetchMechalolBacklinks = deps.fetchMechalolBacklinks;
     var sourceFailureText = deps.sourceFailureText;
@@ -164,7 +165,7 @@
 
       var sameTarget =
         checklistData.wpOldRedirect === true &&
-        normalizeTitle(checklistData.wpOldTarget) === normalizeTitle(result.title);
+        sameTitle(checklistData.wpOldTarget, result.title);
       var historicalCreatedRedirect = historicalMove && !historicalMove.suppressRedirect;
       var historicalNoRedirect = historicalMove && historicalMove.suppressRedirect;
 

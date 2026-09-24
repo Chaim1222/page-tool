@@ -13,14 +13,12 @@
     var directWikipediaSource = !!runtime.directWikipediaSource;
     var firstPage = runtime.firstPage;
     var structureError = runtime.structureError;
-    var placePanel = runtime.placePanel;
 
     // ================================================================
     // מלל - טיוטה, לאישור לפני נעילה
     // ================================================================
     var STR = {
       panelTitle: "מאז הייבוא",
-      close: "סגור",
       retry: "נסה שוב",
 
       localLoading: "בודק בהיסטוריית המכלול…",
@@ -86,14 +84,6 @@
     // ================================================================
     mw.util.addCSS(
       [
-        ".hmk-update-panel{direction:rtl;clear:both;margin:0 0 1rem;border:1px solid #c8ccd1;",
-        "border-radius:6px;background:#fff;font-size:.875rem;line-height:1.5;color:#202122}",
-        ".hmk-update-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;",
-        "padding:.45rem .7rem;border-bottom:1px solid #eaecf0;background:#f8f9fa;",
-        "border-radius:6px 6px 0 0;font-weight:600}",
-        ".hmk-update-close{border:0;background:transparent;padding:.1rem .3rem;color:#54595d;",
-        "cursor:pointer;font:inherit;font-size:1.1rem;line-height:1}",
-        ".hmk-update-close:hover{color:#202122}",
         ".hmk-update-body{padding:.55rem .7rem;display:flex;flex-direction:column;gap:.3rem}",
         ".hmk-update-line{margin:0}",
         ".hmk-update-muted{color:#54595d}",
@@ -106,13 +96,10 @@
         "padding:.25rem .6rem;color:#36c;cursor:pointer;font:inherit;font-size:.8125rem}",
         ".hmk-update-action:hover{background:#f8f9fa}",
         ".hmk-update-action[disabled]{color:#72777d;cursor:default}",
-        ".hmk-update-close:focus-visible,.hmk-update-retry:focus-visible,",
+        ".hmk-update-retry:focus-visible,",
         ".hmk-update-action:focus-visible{outline:2px solid #36c;outline-offset:1px}",
         ".hmk-update-diff{overflow:auto;max-height:60vh;margin-top:.4rem}",
         ".hmk-update-diff table.diff{width:100%;margin:0}",
-        "html.skin-theme-clientpref-night .hmk-update-panel{border-color:#3c4043;background:#202122;color:#e3e3e3}",
-        "html.skin-theme-clientpref-night .hmk-update-head{border-bottom-color:#3c4043;background:#27282c}",
-        "html.skin-theme-clientpref-night .hmk-update-close{color:#b7b7b7}",
         "html.skin-theme-clientpref-night .hmk-update-muted{color:#b7b7b7}",
         "html.skin-theme-clientpref-night .hmk-update-warn{color:#f0c36d}",
         "html.skin-theme-clientpref-night .hmk-update-retry{color:#8ab4f8}",
@@ -342,7 +329,6 @@
     }
 
     function open(options) {
-      var $toggle = options.$toggle;
       var importedRevision = String(options.importedRevision);
       var knownCurrent = String(options.currentRevision);
       var wikiResult = null;
@@ -362,36 +348,15 @@
       });
       var $diffStatus = $("<span>", { class: "hmk-update-muted" });
       var $diff = $("<div>", { class: "hmk-update-diff" }).hide();
-      var $close = $("<button>", {
-        type: "button",
-        class: "hmk-update-close",
-        text: "×",
-        title: STR.close,
-        "aria-label": STR.close,
-      });
-      var $panel = $("<section>", {
-        id: "hmk-update-panel",
-        class: "hmk-update-panel",
-        dir: "rtl",
-      }).append(
-        $("<div>", { class: "hmk-update-head" })
-          .append($("<span>", { text: STR.panelTitle }))
-          .append($close),
-        $("<div>", { class: "hmk-update-body" }).append(
-          $local,
-          $note,
-          $wiki,
-          canShowDiff
-            ? $("<div>", { class: "hmk-update-actions" }).append($diffButton, " ", $diffStatus)
-            : null,
-          canShowDiff ? $diff : null
-        )
+      var $body = $("<div>", { class: "hmk-update-body" }).append(
+        $local,
+        $note,
+        $wiki,
+        canShowDiff
+          ? $("<div>", { class: "hmk-update-actions" }).append($diffButton, " ", $diffStatus)
+          : null,
+        canShowDiff ? $diff : null
       );
-
-      function setVisible(visible) {
-        visible ? $panel.show() : $panel.hide();
-        $toggle.attr("aria-expanded", visible ? "true" : "false");
-      }
 
       // ---- חלק 1: היסטוריית המכלול ----
       function loadLocal() {
@@ -511,21 +476,10 @@
           });
       });
 
-      $close.on("click", function () {
-        setVisible(false);
-        $toggle.trigger("focus");
-      });
-
-      placePanel($panel);
-      setVisible(true);
+      var panel = runtime.openPanel("update", STR.panelTitle, options.$toggle, $body);
       loadLocal();
       loadWikipedia();
-
-      return {
-        toggle: function () {
-          setVisible(!$panel.is(":visible"));
-        },
-      };
+      return panel;
     }
 
     return { open: open };

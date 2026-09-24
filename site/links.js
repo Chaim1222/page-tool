@@ -26,13 +26,7 @@
       return String(title || "").replace(/_/g, " ").replace(/\s+/g, " ").trim();
     }
 
-    // האות הראשונה בכותרת אינה תלוית רישיות במדיה־ויקי.
-    function sameTitle(a, b) {
-      a = cleanTitle(a);
-      b = cleanTitle(b);
-      if (!a || !b) return false;
-      return a.charAt(0).toUpperCase() + a.slice(1) === b.charAt(0).toUpperCase() + b.slice(1);
-    }
+    var sameTitle = runtime.sameTitle;
 
     function withoutDisambiguator(title) {
       return cleanTitle(title).replace(/\s*\([^()]*\)$/, "").trim();
