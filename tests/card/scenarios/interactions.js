@@ -439,7 +439,7 @@ const SCENARIOS = [
           c.eq(c.writes().length, 2, 'ניסיון חוזר אחד בלבד');
           c.eq(c.title(), c.STR.targetOccupiedTitle, 'כרטיס יעד תפוס');
           c.eq(c.body(), c.STR.targetOccupiedOperator, 'מחיקת הפניה מותרת גם בלי הרשאת מחיקת ערכים');
-          c.eq(c.labels(), [c.STR.btnMakeRedirect, c.STR.btnDeleteAndMove(T)], 'פעולות');
+          c.eq(c.labels(), [c.STR.btnDeleteAndMove(T)], 'יעד שהוא הפניה: מחיקה והעברה, בלי הפיכה להפניה');
         },
       },
     ],

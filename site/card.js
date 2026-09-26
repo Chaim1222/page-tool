@@ -1382,8 +1382,10 @@
       suppressRedirect,
       redirectTo
     ) {
-      return [
-        makeRedirectAction(redirectTo, "quiet"),
+      // הפיכה להפניה רק אל ערך. יעד שהוא בעצמו הפניה צריך מחיקה והעברה,
+      // אחרת נוצרת הפניה כפולה (או מעגל, אם הוא מפנה לדף הנוכחי).
+      var actions = targetStatus === "article" ? [makeRedirectAction(redirectTo, "quiet")] : [];
+      return actions.concat(
         occupiedTargetAction(
           to,
           oldname,
@@ -1391,8 +1393,8 @@
           targetStatus,
           suppressRedirect,
           redirectTo
-        ),
-      ];
+        )
+      );
     }
 
     function addManualReviewActions(
