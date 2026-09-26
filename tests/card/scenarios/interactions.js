@@ -381,6 +381,34 @@ const SCENARIOS = [
   }),
 
   card('renamed', 'no-redirect', {
+    id: 'I-move-target-redirects-here',
+    title: 'היעד הוא הפניה אל הדף הנוכחי: העברה רגילה, בלי בדיקה ידנית',
+    group: 'אינטראקציה: העברה',
+    profile: 'מפעיל',
+    localPages: { [T]: { redirectTo: PAGE } },
+    start: {
+      check(c) {
+        c.eq(c.labels(), [c.STR.btnMoveNoRedirect], 'כפתור ההעברה לפי ההמלצה');
+      },
+    },
+    steps: [],
+  }),
+
+  card('renamed', 'no-redirect', {
+    id: 'I-move-target-redirects-here-bidi-mark',
+    title: 'היעד הוא הפניה אל הדף הנוכחי, ובקישור שלה סימן כיווניות נסתר: אותו דף',
+    group: 'אינטראקציה: העברה',
+    profile: 'מפעיל',
+    localPages: { [T]: { content: `#הפניה [[${PAGE}\u200E]]` } },
+    start: {
+      check(c) {
+        c.eq(c.labels(), [c.STR.btnMoveNoRedirect], 'כפתור ההעברה לפי ההמלצה');
+      },
+    },
+    steps: [],
+  }),
+
+  card('renamed', 'no-redirect', {
     id: 'I-move-articleexists-same-identity',
     title: 'יעד תפוס שהוא אותו ערך: הצעה להפוך את הדף להפניה',
     group: 'אינטראקציה: העברה',
