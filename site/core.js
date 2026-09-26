@@ -15,15 +15,11 @@
       return (t || "").replace(/_/g, " ").trim();
     }
 
-    // סימני כיווניות נסתרים, שנכנסים לא פעם בהעתקת טקסט עברי. מדיה־ויקי
-    // מוחקת אותם מכל כותרת, ולכן קישור שמכיל אותם מוביל לאותו דף.
-    var BIDI_MARKS = /[‎‏‪-‮]/g;
-
-    // האם שתי כותרות הן אותו דף: קו תחתון כרווח, רווחים כפולים, סימני
-    // כיווניות, והאות הראשונה אינה תלוית רישיות במדיה־ויקי.
+    // האם שתי כותרות הן אותו דף: קו תחתון כרווח, רווחים כפולים, והאות
+    // הראשונה אינה תלוית רישיות במדיה־ויקי.
     function sameTitle(a, b) {
-      a = normalizeTitle((a || "").replace(BIDI_MARKS, "")).replace(/\s+/g, " ");
-      b = normalizeTitle((b || "").replace(BIDI_MARKS, "")).replace(/\s+/g, " ");
+      a = normalizeTitle(a).replace(/\s+/g, " ");
+      b = normalizeTitle(b).replace(/\s+/g, " ");
       return a.charAt(0).toUpperCase() + a.slice(1) === b.charAt(0).toUpperCase() + b.slice(1);
     }
 
