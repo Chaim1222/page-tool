@@ -461,6 +461,13 @@
       );
     }
 
+    // טקסט שמגיע מדף או משרת, לפני שהוא נכנס לגוף כרטיס שנבנה כ־HTML.
+    function escapeHtml(text) {
+      return String(text).replace(/[&<>"']/g, function (ch) {
+        return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch];
+      });
+    }
+
     function makeAction(label, style, onClick, href) {
       return {
         label: label,
@@ -1263,7 +1270,7 @@
       if (result.sourceFailures && result.sourceFailures.length) {
         return {
           title: STR.fallbackTitle,
-          html: result.sourceFailures.map(sourceFailureText).join(" "),
+          html: escapeHtml(result.sourceFailures.map(sourceFailureText).join(" ")),
           terminal: false,
           warningSkip: { sourceFailures: true },
         };
@@ -2007,7 +2014,7 @@
           showCard({
             type: "warning",
             title: STR.targetOccupiedTitle,
-            html: STR.targetSameReason + " " + identity.text,
+            html: escapeHtml(STR.targetSameReason + " " + identity.text),
             actions: [makeRedirectAction(redirectTo, "primary")],
           });
           return;
@@ -2040,7 +2047,7 @@
         showCard({
           type: "warning",
           title: STR.targetOccupiedTitle,
-          html: occupiedText,
+          html: escapeHtml(occupiedText),
           actions: occupiedActions,
         });
       });
@@ -2349,7 +2356,7 @@
         title: STR.checkFailedTitle,
         html:
           error && error.netError && error.message
-            ? error.message
+            ? escapeHtml(error.message)
             : STR.checkFailedBody,
         actions: [retryAction()],
       });

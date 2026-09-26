@@ -361,6 +361,54 @@ const SCENARIOS = [
   }),
 
   card('renamed', 'no-redirect', {
+    id: 'I-move-articleexists-markup-in-field',
+    title: 'יעד תפוס שבתבנית שלו יש סימון HTML בשדה פריט: מוצג כטקסט, לא כ-HTML',
+    group: 'אינטראקציה: העברה',
+    profile: 'מפעיל',
+    plans: { move: [{ effect: (wiki) => wiki.put(T, { fields: { פריט: '<img src=x class=hmk-injected>' } }) }] },
+    steps: [
+      {
+        do: 'click',
+        label: { str: 'btnMoveNoRedirect' },
+        name: 'העברה-חסומה',
+        check(c) {
+          c.eq(c.title(), c.STR.targetOccupiedTitle, 'כרטיס יעד תפוס');
+          c.eq(c.count('#hmk-tool .hmk-injected'), 0, 'לא נוצר רכיב מתוך שדה התבנית');
+          c.ok((c.body() || '').indexOf('<img src=x class=hmk-injected>') !== -1, 'השדה מוצג כטקסט');
+        },
+      },
+    ],
+  }),
+
+  card('renamed', 'no-redirect', {
+    id: 'I-move-target-redirects-here',
+    title: 'היעד הוא הפניה אל הדף הנוכחי: העברה רגילה, בלי בדיקה ידנית',
+    group: 'אינטראקציה: העברה',
+    profile: 'מפעיל',
+    localPages: { [T]: { redirectTo: PAGE } },
+    start: {
+      check(c) {
+        c.eq(c.labels(), [c.STR.btnMoveNoRedirect], 'כפתור ההעברה לפי ההמלצה');
+      },
+    },
+    steps: [],
+  }),
+
+  card('renamed', 'no-redirect', {
+    id: 'I-move-target-redirects-here-bidi-mark',
+    title: 'היעד הוא הפניה אל הדף הנוכחי, ובקישור שלה סימן כיווניות נסתר: אותו דף',
+    group: 'אינטראקציה: העברה',
+    profile: 'מפעיל',
+    localPages: { [T]: { content: `#הפניה [[${PAGE}\u200E]]` } },
+    start: {
+      check(c) {
+        c.eq(c.labels(), [c.STR.btnMoveNoRedirect], 'כפתור ההעברה לפי ההמלצה');
+      },
+    },
+    steps: [],
+  }),
+
+  card('renamed', 'no-redirect', {
     id: 'I-move-articleexists-same-identity',
     title: 'יעד תפוס שהוא אותו ערך: הצעה להפוך את הדף להפניה',
     group: 'אינטראקציה: העברה',

@@ -77,6 +77,8 @@ mw.loader.using("mediawiki.util").then(function () {
 
     var PageName =
       $("#wikiPageName").text() || toWikipediaTitle(mw.config.get("wgPageName"));
+    // שם הדף במכלול, ברווחים במקום קווים תחתונים.
+    var localPageTitle = mw.config.get("wgPageName").replace(/_/g, " ");
 
     // ==================================================================
     // מחרוזות ליבה בלבד - נדרשות עוד לפני שכרטיס קיים.
@@ -586,7 +588,7 @@ mw.loader.using("mediawiki.util").then(function () {
             controller = feature.open({
               $toggle: $toggle,
               wikiTitle: wikiTitle,
-              localTitle: mw.config.get("wgPageName").replace(/_/g, " "),
+              localTitle: localPageTitle,
               importedRevision: importedRevision,
               currentRevision: current,
             });
@@ -635,7 +637,7 @@ mw.loader.using("mediawiki.util").then(function () {
 
     function makeRedirectsTrigger(wikiTitle) {
       if (!mw.config.get("wgUserName")) return null;
-      var localTitle = mw.config.get("wgPageName").replace(/_/g, " ");
+      var localTitle = localPageTitle;
       var detection = null;
       var controller = null;
       var toggle = makeToggle("redirects", "");
@@ -689,7 +691,7 @@ mw.loader.using("mediawiki.util").then(function () {
     // כערך, כרטיס "נראה שהערך קיים במכלול בשם אחר". בכל מקרה אחר, וגם
     // בכשל, שקט: הדף עצמו אינו נושא של הכלי. הליבה אינה נקראת כאן.
     function runMissingPageCheck() {
-      var localTitle = mw.config.get("wgPageName").replace(/_/g, " ");
+      var localTitle = localPageTitle;
       loadRedirectsFeature()
         .then(function (feature) {
           return feature.detect(PageName, localTitle).then(function (result) {
@@ -729,7 +731,7 @@ mw.loader.using("mediawiki.util").then(function () {
       }
 
       var $pill = $("<span>", { class: cls, dir: "rtl", text: label });
-      var localTitle = mw.config.get("wgPageName").replace(/_/g, " ");
+      var localTitle = localPageTitle;
       var shownTitle = resolvedTitle.trim().replace(/_/g, " ");
       var $wrap = $("<span>", { class: "hmk-size-wrap" }).append($pill);
       if (localTitle !== shownTitle) {

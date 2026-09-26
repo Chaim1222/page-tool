@@ -15,11 +15,15 @@
       return (t || "").replace(/_/g, " ").trim();
     }
 
-    // האם שתי כותרות הן אותו דף: קו תחתון כרווח, רווחים כפולים, והאות
-    // הראשונה אינה תלוית רישיות במדיה־ויקי.
+    // סימני כיווניות נסתרים, שנכנסים לא פעם בהעתקת טקסט עברי. מדיה־ויקי
+    // מוחקת אותם מכל כותרת, ולכן קישור שמכיל אותם מוביל לאותו דף.
+    var BIDI_MARKS = /[\u200E\u200F\u202A-\u202E]/g;
+
+    // האם שתי כותרות הן אותו דף: קו תחתון כרווח, רווחים כפולים, סימני
+    // כיווניות, והאות הראשונה אינה תלוית רישיות במדיה־ויקי.
     function sameTitle(a, b) {
-      a = normalizeTitle(a).replace(/\s+/g, " ");
-      b = normalizeTitle(b).replace(/\s+/g, " ");
+      a = normalizeTitle((a || "").replace(BIDI_MARKS, "")).replace(/\s+/g, " ");
+      b = normalizeTitle((b || "").replace(BIDI_MARKS, "")).replace(/\s+/g, " ");
       return a.charAt(0).toUpperCase() + a.slice(1) === b.charAt(0).toUpperCase() + b.slice(1);
     }
 
@@ -312,22 +316,22 @@
       var templateDepth = 0;
       var linkDepth = 0;
       for (var i = start; i < end; i++) {
-        if (text.substr(i, 2) === "{{") {
+        if (text.startsWith("{{", i)) {
           templateDepth++;
           i++;
           continue;
         }
-        if (text.substr(i, 2) === "}}" && templateDepth > 0) {
+        if (text.startsWith("}}", i) && templateDepth > 0) {
           templateDepth--;
           i++;
           continue;
         }
-        if (text.substr(i, 2) === "[[") {
+        if (text.startsWith("[[", i)) {
           linkDepth++;
           i++;
           continue;
         }
-        if (text.substr(i, 2) === "]]" && linkDepth > 0) {
+        if (text.startsWith("]]", i) && linkDepth > 0) {
           linkDepth--;
           i++;
           continue;
@@ -361,13 +365,12 @@
       var closed = false;
 
       for (var i = cursor; i < wikitext.length; i++) {
-        var pair = wikitext.substr(i, 2);
-        if (pair === "{{") {
+        if (wikitext.startsWith("{{", i)) {
           templateDepth++;
           i++;
           continue;
         }
-        if (pair === "}}") {
+        if (wikitext.startsWith("}}", i)) {
           templateDepth--;
           if (templateDepth === 0) {
             if (segmentStart !== null) segments.push([segmentStart, i]);
@@ -377,12 +380,12 @@
           i++;
           continue;
         }
-        if (pair === "[[") {
+        if (wikitext.startsWith("[[", i)) {
           linkDepth++;
           i++;
           continue;
         }
-        if (pair === "]]" && linkDepth > 0) {
+        if (wikitext.startsWith("]]", i) && linkDepth > 0) {
           linkDepth--;
           i++;
           continue;
