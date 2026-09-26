@@ -312,22 +312,22 @@
       var templateDepth = 0;
       var linkDepth = 0;
       for (var i = start; i < end; i++) {
-        if (text.substr(i, 2) === "{{") {
+        if (text.startsWith("{{", i)) {
           templateDepth++;
           i++;
           continue;
         }
-        if (text.substr(i, 2) === "}}" && templateDepth > 0) {
+        if (text.startsWith("}}", i) && templateDepth > 0) {
           templateDepth--;
           i++;
           continue;
         }
-        if (text.substr(i, 2) === "[[") {
+        if (text.startsWith("[[", i)) {
           linkDepth++;
           i++;
           continue;
         }
-        if (text.substr(i, 2) === "]]" && linkDepth > 0) {
+        if (text.startsWith("]]", i) && linkDepth > 0) {
           linkDepth--;
           i++;
           continue;
@@ -361,13 +361,12 @@
       var closed = false;
 
       for (var i = cursor; i < wikitext.length; i++) {
-        var pair = wikitext.substr(i, 2);
-        if (pair === "{{") {
+        if (wikitext.startsWith("{{", i)) {
           templateDepth++;
           i++;
           continue;
         }
-        if (pair === "}}") {
+        if (wikitext.startsWith("}}", i)) {
           templateDepth--;
           if (templateDepth === 0) {
             if (segmentStart !== null) segments.push([segmentStart, i]);
@@ -377,12 +376,12 @@
           i++;
           continue;
         }
-        if (pair === "[[") {
+        if (wikitext.startsWith("[[", i)) {
           linkDepth++;
           i++;
           continue;
         }
-        if (pair === "]]" && linkDepth > 0) {
+        if (wikitext.startsWith("]]", i) && linkDepth > 0) {
           linkDepth--;
           i++;
           continue;
