@@ -67,7 +67,12 @@ const scenarios = [
   s('baseline-different', 'כותרת שונה משדה דף', {
     local: { wikitext: wt({ דף: 'ישן', גרסה: '101' }) },
     revision: { id: 101, title: 'חדש' },
-    wikiTitles: { חדש: { status: 'found' } },
+    wikiTitles: { חדש: { status: 'found' }, ישן: { status: 'missing' } },
+  }),
+  s('baseline-conflict', 'הגרסה מובילה לכותרת אחרת, אבל הכותרת בשדה דף עדיין ערך חי', {
+    local: { wikitext: wt({ דף: 'ישן', גרסה: '101' }) },
+    revision: { id: 101, title: 'חדש' },
+    wikiTitles: { חדש: { status: 'found' }, ישן: { status: 'found' } },
   }),
   s('baseline-redirect-to-baseline', 'הפניה ליעד הבסיס', {
     local: { wikitext: wt({ דף: 'חדש', גרסה: '101' }) },
@@ -80,7 +85,7 @@ const scenarios = [
   s('baseline-disambig-renamed', 'פירושונים שהועבר', {
     local: { wikitext: wt({ דף: 'ישן', גרסה: '101' }) },
     revision: { id: 101, title: 'חדש' },
-    wikiTitles: { חדש: { status: 'disambiguation' } },
+    wikiTitles: { חדש: { status: 'disambiguation' }, ישן: { status: 'missing' } },
   }),
 
   s('chain-redirect', 'הפניה', {
@@ -192,6 +197,7 @@ const expectations = {
   'source-both-failure-title': { terminal: 'success', delivery: 'render', status: 'found', sourceFailures: ['failureSourceRevision', 'failureSourceWikidata'] },
   'baseline-same': { terminal: 'success', delivery: 'render', status: 'found' },
   'baseline-different': { terminal: 'success', delivery: 'render', status: 'renamed', from: 'ישן', title: 'חדש' },
+  'baseline-conflict': { terminal: 'success', delivery: 'render', status: 'renamed', from: 'ישן', title: 'חדש', sourceConflict: true },
   'baseline-redirect-to-baseline': { terminal: 'success', delivery: 'render', status: 'already_synced', resolvedStatus: 'found' },
   'baseline-disambig-renamed': { terminal: 'success', delivery: 'render', status: 'renamed', targetIsDisambig: true },
   'chain-redirect': { terminal: 'success', delivery: 'render', status: 'redirect', target: 'יעד', targetFragment: 'פסקה' },

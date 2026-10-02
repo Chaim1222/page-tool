@@ -457,7 +457,10 @@
     //    שינוי-שם נמדד מול שדה דף= (מצב הכותרת בסנכרון האחרון), לא מול
     //    הכותרת המכלולאית - כדי למנוע התרעות-שווא מהבדל-שמות חוצה-אתרים
     // ==================================================================
-    function resolveWikipediaState(mechalolTitle, fields) {
+    // preferred: מקור שהמשתמש בחר להכריע לפיו ("גרסה", "דף" או "פריט"). בלעדיו
+    // הסדר הרגיל חל, ואם הגרסה או הפריט מובילים לכותרת שונה מ־דף= שעדיין ערך
+    // חי בוויקיפדיה, התוצאה מסומנת בסתירה (sourceConflict) ולא בהעברה.
+    function resolveWikipediaState(mechalolTitle, fields, preferred) {
       var baseline = fields["דף"] ? fields["דף"].trim() : null;
       var failures = [];
 
@@ -499,9 +502,51 @@
           });
       }
 
+      // הגרסה (או הפריט) מובילה לכותרת אחרת, אבל הכותרת ב־דף= קיימת בוויקיפדיה
+      // כערך חי: ההיסטוריה כנראה הועברה, והכלי אינו יודע לפי מה להכריע.
+      function markSourceConflict(checked) {
+        if (
+          preferred ||
+          !baseline ||
+          !checked ||
+          checked.status !== "renamed" ||
+          (checked.via !== "גרסה" && checked.via !== "פריט")
+        ) {
+          return Promise.resolve(checked);
+        }
+        return resolveTitleChain(baseline)
+          .then(function (own) {
+            if (own.status !== "found" || !sameTitle(own.title, baseline)) return checked;
+            var options = [
+              { key: checked.via, title: checked.title },
+              { key: "דף", title: baseline },
+            ];
+            if (checked.via === "גרסה" && fields["פריט"]) {
+              return resolveByWikidata(fields["פריט"])
+                .catch(function (err) {
+                  if (err && err.silent) throw err;
+                  return null;
+                })
+                .then(function (byItem) {
+                  if (byItem && byItem.title) options.push({ key: "פריט", title: byItem.title });
+                  checked.sourceConflict = { options: options };
+                  return checked;
+                });
+            }
+            checked.sourceConflict = { options: options };
+            return checked;
+          })
+          .catch(function (err) {
+            if (err && err.silent) throw err;
+            return checked;
+          });
+      }
+
       function afterRevision(result) {
         if (result && !result.__revidDeleted) {
-          return applyBaselineCheck(result, baseline).then(attachFailures);
+          return applyBaselineCheck(result, baseline)
+            .then(markSourceConflict)
+            .then(attachFailures);
         }
 
         var revidDeleted = !!(result && result.__revidDeleted);
@@ -513,11 +558,28 @@
           })
           .then(function (result2) {
             if (result2) {
-              return applyBaselineCheck(result2, baseline).then(function (checked) {
-                return finish(checked, revidDeleted);
-              });
+              return applyBaselineCheck(result2, baseline)
+                .then(markSourceConflict)
+                .then(function (checked) {
+                  return finish(checked, revidDeleted);
+                });
             }
             return titleFallback(revidDeleted);
+          });
+      }
+
+      // בחירת המשתמש: רק המקור שנבחר מכריע, בלי נפילה למקור אחר. כשל נראה
+      // כמו כל כשל בהכרעה, ולא מוחלף בשקט.
+      if (preferred === "דף" && baseline) {
+        return titleFallback(false);
+      }
+      if (preferred === "פריט" && fields["פריט"]) {
+        return resolveByWikidata(fields["פריט"])
+          .then(function (res) {
+            return res ? applyBaselineCheck(res, baseline) : titleFallback(false);
+          })
+          .then(function (checked) {
+            return finish(checked, false);
           });
       }
 
@@ -942,7 +1004,7 @@
 
     // נקודת הכניסה היחידה להכרעה. knownFields: שדות התבנית כפי שהדף מציג
     // אותם, או null.
-    function run(mechalolTitle, pageName, knownFields) {
+    function run(mechalolTitle, pageName, knownFields, preferredSource) {
       ownFields = { דף: null, גרסה: null, פריט: null };
       localCreationTs = null;
       localCreationFailed = false;
@@ -955,7 +1017,7 @@
           ownFields = current.page.fields;
           localCreationTs = current.creationTs;
           localCreationFailed = !current.creationTs;
-          return resolveWikipediaState(mechalolTitle, ownFields);
+          return resolveWikipediaState(mechalolTitle, ownFields, preferredSource || null);
         })
         .then(function (result) {
           return localStateMatches(result).then(function (matches) {
