@@ -313,7 +313,7 @@ mw.loader.using("mediawiki.util").then(function () {
         structureError: core.structureError,
         toolContainer: toolContainer,
         clearTool: clearTool,
-        runPageCheck: runPageCheck,
+        runPageCheck: function (preferredSource) { runPageCheck(preferredSource); },
         addEnglishLink: addEnglishLink,
         showFoundSize: showFoundSize,
         showMatchIndicator: showMatchIndicator,
@@ -776,7 +776,8 @@ mw.loader.using("mediawiki.util").then(function () {
       return found ? fields : null;
     }
 
-    function runPageCheck() {
+    // preferredSource: מקור שהמשתמש בחר להכריע לפיו כשהמקורות סותרים.
+    function runPageCheck(preferredSource) {
       if (isMissingPage) {
         runMissingPageCheck();
         return;
@@ -786,7 +787,7 @@ mw.loader.using("mediawiki.util").then(function () {
 
       ensureCore()
         .then(function (activeCore) {
-          return activeCore.run(PageName, pageName, pageTemplateFields());
+          return activeCore.run(PageName, pageName, pageTemplateFields(), preferredSource);
         })
         .then(function (outcome) {
           var result = outcome.result;

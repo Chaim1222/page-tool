@@ -8,9 +8,6 @@
     "page": {
       "ns": 0,
       "pageid": 30,
-      "pageprops": {
-        "disambiguation": ""
-      },
       "revisions": [
         {
           "revid": 301,
@@ -20,8 +17,20 @@
       "title": "חדש"
     },
     "revid": "101",
+    "sourceConflict": {
+      "options": [
+        {
+          "key": "גרסה",
+          "title": "חדש"
+        },
+        {
+          "key": "דף",
+          "title": "ישן"
+        }
+      ]
+    },
     "status": "renamed",
-    "targetIsDisambig": true,
+    "targetIsDisambig": false,
     "title": "חדש",
     "via": "גרסה"
   },
@@ -111,39 +120,6 @@
             "redirects": 1,
             "rvprop": "size|ids",
             "titles": "ישן",
-            "utf8": 1
-          }
-        }
-      ]
-    },
-    {
-      "stage": "log",
-      "calls": [
-        {
-          "endpoint": "wp",
-          "params": {
-            "action": "query",
-            "format": "json",
-            "lelimit": 20,
-            "leprop": "ids|title|type|user|timestamp|comment|details",
-            "letitle": "ישן",
-            "letype": "delete",
-            "list": "logevents",
-            "origin": "*",
-            "utf8": 1
-          }
-        },
-        {
-          "endpoint": "wp",
-          "params": {
-            "action": "query",
-            "format": "json",
-            "lelimit": 20,
-            "leprop": "ids|title|type|user|timestamp|comment|details",
-            "letitle": "ישן",
-            "letype": "move",
-            "list": "logevents",
-            "origin": "*",
             "utf8": 1
           }
         }

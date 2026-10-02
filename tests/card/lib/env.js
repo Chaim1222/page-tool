@@ -586,8 +586,8 @@ async function createEnv(spec) {
         })
       : null;
     return Object.assign({}, core, {
-      run(mechalolTitle, name) {
-        log.runs.push({ mechalolTitle, pageName: name });
+      run(mechalolTitle, name, fields, preferred) {
+        log.runs.push({ mechalolTitle, pageName: name, preferred: preferred || null });
         const current = runs ? runs.shift() || base : base;
         return new Promise((resolve, reject) => {
           clock.setTimeout(() => {

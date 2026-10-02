@@ -71,7 +71,7 @@ function assertScenarioIntent(scenario, actual) {
       fail(`${key} ${actual.result?.[key]} != ${e[key]}`);
     }
   }
-  for (const key of ['revidDeletedNotice', 'targetIsDisambig']) {
+  for (const key of ['revidDeletedNotice', 'targetIsDisambig', 'sourceConflict']) {
     if (Object.prototype.hasOwnProperty.call(e, key) && !!actual.result?.[key] !== e[key]) {
       fail(`${key} ${!!actual.result?.[key]} != ${e[key]}`);
     }

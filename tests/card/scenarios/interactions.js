@@ -1206,6 +1206,51 @@ const SCENARIOS = [
     ],
   },
 
+  {
+    level: 'A',
+    id: 'I-source-conflict-chooser',
+    title: 'הגרסה וה־דף סותרים: אין פעולה, בורר מקורות, והבחירה מריצה את הבדיקה לפי המקור',
+    group: 'אינטראקציה: ניסיון חוזר',
+    profile: 'מפעיל',
+    fixture: {
+      ownFields: RESULTS.renamed.fields,
+      runs: [
+        {
+          result: Object.assign({}, RESULTS.renamed.result, {
+            sourceConflict: {
+              options: [
+                { key: 'גרסה', title: 'חדש' },
+                { key: 'דף', title: 'ישן' },
+              ],
+            },
+          }),
+        },
+        { result: RESULTS.found.result },
+      ],
+    },
+    localPages: { [PAGE]: { fields: RESULTS.renamed.fields } },
+    net: { wp: { [wpOldTitle(RESULTS.renamed)]: {} } },
+    start: {
+      check(c) {
+        c.eq(c.labels(), [], 'אין כפתורי העברה או הפניה');
+        c.ok((c.text('#hmk-tool .hmk-carddecision') || '').indexOf(c.STR.sourceConflictReason) !== -1, 'הסבר הסתירה');
+        c.eq(c.count('.hmk-seg-btn'), 2, 'שני מקורות בבורר');
+      },
+    },
+    steps: [
+      {
+        do: 'toggle',
+        label: { str: 'sourceChoice', args: ['דף', 'ישן'] },
+        name: 'בחירת-דף',
+        check(c) {
+          c.eq(c.env.log.runs.length, 2, 'הבדיקה רצה שוב');
+          c.eq(c.env.log.runs[1].preferred, 'דף', 'לפי המקור שנבחר');
+          c.eq(c.count('#hmk-tool .hmk-card'), 0, 'אין כרטיס אחרי הבחירה');
+        },
+      },
+    ],
+  },
+
   Object.assign(levelA('deleted', {}), {
     id: 'I-deleted-reason-parse-failure',
     title: 'עיבוד סיבת המחיקה נכשל: הסיבה הגולמית וציון שהעיבוד נכשל',

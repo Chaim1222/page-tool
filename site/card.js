@@ -819,7 +819,9 @@
     // wpOldTitle ו־wpTarget הם השמות בוויקיפדיה. השם המקומי של הדף יכול
     // להיות שונה מהם, ולכן שאלת ההפניה נשאלת על שם ויקיפדיה ולא על שמו.
     // merged: בוויקיפדיה הכותרת הפכה להפניה, כלומר הערך מוזג לערך אחר.
-    function computeMoveChecklist(oldname, target, wpOldTitle, wpTarget, merged) {
+    // sourceConflict: הגרסה או הפריט מובילים לכותרת אחרת מזו שב־דף=, שעדיין
+    // ערך חי בוויקיפדיה. אין המלצה עד שהמשתמש מכריע לפי מקור.
+    function computeMoveChecklist(oldname, target, wpOldTitle, wpTarget, merged, sourceConflict) {
       return Promise.all([
         wpRedirectTarget(wpOldTitle),
         fetchLocalPageData(target, true),
@@ -853,6 +855,8 @@
           action = "none"; label = STR.noActionNeeded; reason = STR.targetCurrentReason;
         } else if (targetStatus === "unchecked") {
           action = "manual_review"; label = STR.manualReview; reason = STR.targetStatusUnknownReason;
+        } else if (sourceConflict) {
+          action = "manual_review"; label = STR.manualReview; reason = STR.sourceConflictReason;
         } else if (merged) {
           // ערך שמוזג אינו מועבר: אם הערך המאחד קיים במכלול, הדף הופך
           // להפניה אליו; אחרת בדיקה ידנית.
@@ -894,6 +898,7 @@
           targetIsCurrentPage: targetIsCurrentPage,
           merged: !!merged,
           oldTitleReplaced: oldTitleReplaced,
+          sourceConflict: !!sourceConflict,
           backlinksRoot: oldname,
           backlinksCount: backlinks.count,
           backlinksDirectCount: backlinks.directCount,
@@ -1424,6 +1429,8 @@
         return;
       }
       if (checklistData.merged) return;
+      // המקורות סותרים: אין פעולה עד בחירת מקור.
+      if (checklistData.sourceConflict) return;
       // נוצר בוויקיפדיה ערך חדש בשם הישן: אין הפיכה להפניה, רק עדכון.
       if (checklistData.oldTitleReplaced) return;
 
@@ -1470,6 +1477,28 @@
       return $link;
     }
 
+    // בורר מקור ההכרעה כשהמקורות סותרים. הבחירה מריצה את הבדיקה מחדש לפי
+    // המקור שנבחר בלבד.
+    function insertSourceChooser(rendered, conflict) {
+      var $wrap = $("<div>", { class: "hmk-toggle-redirect" });
+      $wrap.append($("<span>", { class: "hmk-toggle-label", text: STR.sourceChooserLabel }));
+      var $seg = $("<span>", { class: "hmk-seg" });
+      conflict.options.forEach(function (o) {
+        $("<button>", {
+          class: "hmk-seg-btn",
+          type: "button",
+          title: o.title,
+          text: STR.sourceChoice(o.key, o.title),
+        })
+          .on("click", function () {
+            clearTool();
+            runtime.runPageCheck(o.key);
+          })
+          .appendTo($seg);
+      });
+      $wrap.append($seg).insertBefore(rendered.actions);
+    }
+
     // מצב "renamed" - שינוי-שם בוויקיפדיה: כרטיסיית פעולה. ההעברה פועלת לפי
     // ההמלצה, ובורר בתוך הפרטים מאפשר לעקוף ידנית את עניין ההפניה.
     // סיכום הדפים המקשרים מוצג בכרטיס, והעץ המלא בפירוט ההמלצה.
@@ -1502,7 +1531,8 @@
       }
 
       var checklistPromise = computeMoveChecklist(
-        oldname, target, names.wpOldTitle, wpTarget, result.status === "redirect"
+        oldname, target, names.wpOldTitle, wpTarget, result.status === "redirect",
+        !!result.sourceConflict
       );
 
       var rendered = showResultCard(result, {
@@ -1609,6 +1639,10 @@
           .append($("<span>", { class: "hmk-note-mark", text: "⚠" }))
           .append($("<span>", { text: STR.targetIsDisambig }))
           .insertBefore(rendered.actions);
+      }
+
+      if (result.sourceConflict) {
+        insertSourceChooser(rendered, result.sourceConflict);
       }
 
       checklistPromise.then(function (d) {
