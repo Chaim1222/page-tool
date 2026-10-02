@@ -869,9 +869,9 @@
         } else if (targetStatus === "article" && targetSameIdentity) {
           action = "make_redirect"; label = STR.btnMakeRedirect; reason = STR.targetSameReason;
         } else if (targetStatus === "article" && targetIdentity.verdict === "different") {
-          action = "manual_review"; label = STR.manualReview; reason = STR.targetDifferentReason;
+          action = "manual_review"; label = STR.manualReview; reason = STR.targetDifferentReason + (oldTitleReplaced ? " " + STR.oldTitleReplacedNote : "");
         } else if (targetStatus === "article") {
-          action = "manual_review"; label = STR.manualReview; reason = STR.targetUnknownReason;
+          action = "manual_review"; label = STR.manualReview; reason = STR.targetUnknownReason + (oldTitleReplaced ? " " + STR.oldTitleReplacedNote : "");
         } else if (wpOld.failed) {
           action = "move_with_redirect"; label = STR.btnMoveWithRedirect; reason = STR.unknownSafeRedirect;
         } else if (suppress) {
