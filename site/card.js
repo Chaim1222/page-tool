@@ -843,6 +843,10 @@
           targetStatus === "article" ? describeIdentity(runtime.getOwnFields(), targetData.fields) : null;
         var targetIsCurrentPage = sameTitle(oldname, target);
         var targetSameIdentity = !!targetIdentity && targetIdentity.verdict === "same";
+        // השם הישן בוויקיפדיה תפוס כעת בערך אמיתי (לא הפניה), כלומר נוצר שם
+        // ערך חדש. הדף הנוכחי צריך לקבל את התוכן החדש ולא להפוך להפניה.
+        var oldTitleReplaced =
+          !merged && !wpOld.failed && wpOld.exists === true && wpOld.redirect === false;
         var action, label, reason;
 
         if (targetIsCurrentPage) {
@@ -860,12 +864,14 @@
         } else if (targetRedirectsElsewhere) {
           action = "manual_review"; label = STR.manualReview;
           reason = STR.targetRedirectElsewhereReason(targetRedirect ? targetRedirect.target : null);
+        } else if (targetStatus === "article" && targetSameIdentity && oldTitleReplaced) {
+          action = "manual_review"; label = STR.manualReview; reason = STR.oldTitleReplacedReason;
         } else if (targetStatus === "article" && targetSameIdentity) {
           action = "make_redirect"; label = STR.btnMakeRedirect; reason = STR.targetSameReason;
         } else if (targetStatus === "article" && targetIdentity.verdict === "different") {
-          action = "manual_review"; label = STR.manualReview; reason = STR.targetDifferentReason;
+          action = "manual_review"; label = STR.manualReview; reason = STR.targetDifferentReason + (oldTitleReplaced ? " " + STR.oldTitleReplacedNote : "");
         } else if (targetStatus === "article") {
-          action = "manual_review"; label = STR.manualReview; reason = STR.targetUnknownReason;
+          action = "manual_review"; label = STR.manualReview; reason = STR.targetUnknownReason + (oldTitleReplaced ? " " + STR.oldTitleReplacedNote : "");
         } else if (wpOld.failed) {
           action = "move_with_redirect"; label = STR.btnMoveWithRedirect; reason = STR.unknownSafeRedirect;
         } else if (suppress) {
@@ -887,6 +893,7 @@
           targetSameIdentity: targetSameIdentity,
           targetIsCurrentPage: targetIsCurrentPage,
           merged: !!merged,
+          oldTitleReplaced: oldTitleReplaced,
           backlinksRoot: oldname,
           backlinksCount: backlinks.count,
           backlinksDirectCount: backlinks.directCount,
@@ -1417,6 +1424,8 @@
         return;
       }
       if (checklistData.merged) return;
+      // נוצר בוויקיפדיה ערך חדש בשם הישן: אין הפיכה להפניה, רק עדכון.
+      if (checklistData.oldTitleReplaced) return;
 
       // יעד שהוא הפניה לדף אחר: המכלול החליט עליה בעצמו, ולכן אין מחיקה
       // והעברה. נשארת בקשת העברה ממפעילים.

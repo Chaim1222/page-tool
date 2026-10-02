@@ -80,6 +80,12 @@ const MOVE_VARIANTS = {
     local: (T) => ({ [T]: { fields: { פריט: 'Q1' } } }),
     action: 'make_redirect',
   },
+  'target-same-old-replaced': {
+    title: 'היעד קיים במכלול כאותו ערך, אך בוויקיפדיה נוצר ערך חדש בשם הישן: אין הפניה',
+    net: (T, OLD) => ({ wp: { [OLD]: {} } }),
+    local: (T) => ({ [T]: { fields: { פריט: 'Q1' } } }),
+    action: 'manual-none',
+  },
   'target-different': {
     title: 'היעד קיים במכלול כערך עם פריט אחר',
     net: (T, OLD) => ({ wp: { [OLD]: { missing: true } } }),
