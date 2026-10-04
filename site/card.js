@@ -19,6 +19,7 @@
     var userCapabilitiesLoadFailed = runtime.userCapabilitiesLoadFailed;
     var toWikipediaTitle = runtime.toWikipediaTitle;
     var toLocalTitle = runtime.toLocalTitle;
+    var localTitlePrefix = runtime.localTitlePrefix;
     var api = new mw.Api();
     var currentPageName = mw.config.get("wgPageName").replace(/_/g, " ");
     var actionReason = "השוואה לוויקיפדיה העברית";
@@ -1477,6 +1478,29 @@
       return $link;
     }
 
+    // בורר קידומת: שם היעד כמו בוויקיפדיה (ברירת מחדל), או עם "רבי"/"הרב"
+    // כמו במילה הראשונה בשם הדף הנוכחי. הבחירה בונה את הכרטיס מחדש.
+    function insertPrefixChooser(rendered, choice) {
+      var $wrap = $("<div>", { class: "hmk-toggle-redirect" });
+      $wrap.append($("<span>", { class: "hmk-toggle-label", text: STR.prefixChooserLabel }));
+      var $seg = $("<span>", { class: "hmk-seg" });
+      [
+        { on: false, label: STR.prefixOff },
+        { on: true, label: STR.prefixOn(choice.word) },
+      ].forEach(function (o) {
+        $("<button>", {
+          class: "hmk-seg-btn" + (o.on === choice.on ? " hmk-seg-on" : ""),
+          type: "button",
+          text: o.label,
+        })
+          .on("click", function () {
+            if (o.on !== choice.on) choice.apply(o.on);
+          })
+          .appendTo($seg);
+      });
+      $wrap.append($seg).insertBefore(rendered.actions);
+    }
+
     // בורר מקור ההכרעה כשהמקורות סותרים. הבחירה מריצה את הבדיקה מחדש לפי
     // המקור שנבחר בלבד.
     function insertSourceChooser(rendered, conflict) {
@@ -1644,6 +1668,7 @@
       if (result.sourceConflict) {
         insertSourceChooser(rendered, result.sourceConflict);
       }
+      if (names.prefixChoice) insertPrefixChooser(rendered, names.prefixChoice);
 
       checklistPromise.then(function (d) {
         checklist = d;
@@ -1769,10 +1794,25 @@
       });
     }
 
-    function renderMoveState(result) {
+    // withPrefix: המשתמש בחר להוסיף "רבי"/"הרב" לשם היעד. ברירת המחדל כמו בוויקיפדיה.
+    function renderMoveState(result, withPrefix) {
       var isRedirect = result.status === "redirect";
       var wpTarget = isRedirect ? result.target : result.title;
-      var target = toLocalTitle(wpTarget, currentPageName);
+      var target = toLocalTitle(wpTarget, currentPageName, !!withPrefix);
+      var prefixWord = localTitlePrefix(currentPageName);
+      var prefixChoice =
+        prefixWord &&
+        toLocalTitle(wpTarget, currentPageName, true) !==
+          toLocalTitle(wpTarget, currentPageName, false)
+          ? {
+              word: prefixWord,
+              on: !!withPrefix,
+              apply: function (on) {
+                clearTool();
+                renderMoveState(result, on);
+              },
+            }
+          : null;
       renderMoveCard(
         result,
         target,
@@ -1782,6 +1822,7 @@
         {
           wpTarget: wpTarget,
           wpOldTitle: isRedirect ? result.title : result.from,
+          prefixChoice: prefixChoice,
         }
       );
     }

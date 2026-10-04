@@ -409,6 +409,33 @@ const SCENARIOS = [
   }),
 
   card('renamed', 'no-redirect', {
+    id: 'I-prefix-chooser',
+    title: 'שם הדף מתחיל ב"רבי": ברירת המחדל כמו בוויקיפדיה, ובורר מוסיף את הקידומת',
+    group: 'אינטראקציה: העברה',
+    profile: 'מפעיל',
+    pageName: 'רבי ישן',
+    localPages: { 'רבי ישן': { fields: RESULTS.renamed.fields } },
+    start: {
+      check(c) {
+        c.eq(c.text('#hmk-tool .hmk-target a'), T, 'שם היעד כמו בוויקיפדיה');
+        c.eq(c.count('.hmk-seg-btn'), 2, 'בורר קידומת');
+        c.ok(c.exists('#hmk-tool .hmk-seg-on'), 'האפשרות הנוכחית מסומנת');
+      },
+    },
+    steps: [
+      {
+        do: 'toggle',
+        label: { str: 'prefixOn', args: ['רבי'] },
+        name: 'הוספת-קידומת',
+        check(c) {
+          c.eq(c.text('#hmk-tool .hmk-target a'), `רבי ${T}`, 'שם היעד עם הקידומת');
+          c.eq(c.count('#hmk-tool .hmk-card'), 1, 'כרטיס אחד');
+        },
+      },
+    ],
+  }),
+
+  card('renamed', 'no-redirect', {
     id: 'I-move-articleexists-same-identity',
     title: 'יעד תפוס שהוא אותו ערך: הצעה להפוך את הדף להפניה',
     group: 'אינטראקציה: העברה',
