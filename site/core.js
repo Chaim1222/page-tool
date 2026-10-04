@@ -457,6 +457,15 @@
     //    שינוי-שם נמדד מול שדה דף= (מצב הכותרת בסנכרון האחרון), לא מול
     //    הכותרת המכלולאית - כדי למנוע התרעות-שווא מהבדל-שמות חוצה-אתרים
     // ==================================================================
+    // ערך שדה לתצוגה בהודעת שגיאה. תווי כיווניות ורוחב־אפס נסתרים לעין, ולכן
+    // מוצגים בקוד שלהם, כדי שאפשר יהיה לראות מה באמת נכתב בתבנית.
+    function showFieldValue(value) {
+      return String(value).replace(/[\u200b-\u200f\u202a-\u202e\u2060-\u2069\ufeff]/g, function (ch) {
+        var hex = ch.charCodeAt(0).toString(16).toUpperCase();
+        return "‹U+" + ("0000" + hex).slice(-4) + "›";
+      });
+    }
+
     // preferred: מקור שהמשתמש בחר להכריע לפיו ("גרסה", "דף" או "פריט"). בלעדיו
     // הסדר הרגיל חל, ואם הגרסה או הפריט מובילים לכותרת שונה מ־דף= שעדיין ערך
     // חי בוויקיפדיה, התוצאה מסומנת בסתירה (sourceConflict) ולא בהעברה.
@@ -584,6 +593,16 @@
       }
 
       if (fields["גרסה"] && fields["גרסה"] !== "0") {
+        // ערך שאינו מספר שלם נדחה בשרת ("badinteger"). כאן הוא נעצר לפני
+        // הבקשה, והכשל מציג את הערך שנכתב בתבנית.
+        if (!/^[1-9]\d*$/.test(fields["גרסה"])) {
+          rememberFailure(
+            "failureSourceRevision",
+            new Error(STR.revisionFieldInvalid(showFieldValue(fields["גרסה"]))),
+            "fallbackRevisionFailed"
+          );
+          return afterRevision(null);
+        }
         return resolveByRevisionId(fields["גרסה"])
           .catch(function (err) {
             return rememberFailure("failureSourceRevision", err, "fallbackRevisionFailed");

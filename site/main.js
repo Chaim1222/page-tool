@@ -50,15 +50,22 @@ mw.loader.using("mediawiki.util").then(function () {
         .replace(/א-ל/g, "אל");
     }
 
+    // "רבי" או "הרב" כמילה הראשונה בשם הדף במכלול, אחרת null.
+    function localTitlePrefix(localTitle) {
+      var m = String(localTitle || "").replace(/_/g, " ").trim().match(/^(רבי|הרב) /);
+      return m ? m[1] : null;
+    }
+
     // מהשם בוויקיפדיה לשם במכלול: מעבירים לשם החדש רק את הכללים שהופיעו
     // בשם המקומי הנוכחי. אם ההמרה חזרה אינה מחזירה בדיוק את שם ויקיפדיה,
-    // לא מנחשים ומחזירים את שם ויקיפדיה כמות שהוא.
-    function toLocalTitle(wpTitle, localTitle) {
+    // לא מנחשים ומחזירים את שם ויקיפדיה כמות שהוא. הקידומת "רבי"/"הרב"
+    // מתווספת רק כשהמשתמש בחר בכך (withPrefix); ברירת המחדל היא כמו בוויקיפדיה.
+    function toLocalTitle(wpTitle, localTitle, withPrefix) {
       var wp = String(wpTitle || "").replace(/_/g, " ").trim();
       var local = String(localTitle || "").replace(/_/g, " ").trim();
       if (!wp || !local) return wp;
       var out = wp;
-      var prefix = local.match(/^(רבי|הרב) /);
+      var prefix = withPrefix ? local.match(/^(רבי|הרב) /) : null;
       if (prefix && out.indexOf(prefix[0]) !== 0) out = prefix[0] + out;
       if (local.indexOf('אישיות מהתנ"ך') !== -1) {
         out = out.replace(/דמות מקראית/g, 'אישיות מהתנ"ך');
@@ -96,6 +103,9 @@ mw.loader.using("mediawiki.util").then(function () {
       netNotFound: "הכתובת המבוקשת לא נמצאה.",
       netParse: "התשובה מהשרת אינה ניתנת לפענוח.",
       netStructure: "התשובה מהשרת התקבלה, אך חסר בה מידע צפוי.",
+      revisionFieldInvalid: function (shown) {
+        return "שדה הגרסה בתבנית אינו מספר שלם: «" + shown + "».";
+      },
       netHttpError: function (code) {
         return "השרת החזיר קוד מצב " + code + ".";
       },
@@ -327,6 +337,7 @@ mw.loader.using("mediawiki.util").then(function () {
         parseRedirectLine: core.parseRedirectLine,
         toWikipediaTitle: toWikipediaTitle,
         toLocalTitle: toLocalTitle,
+        localTitlePrefix: localTitlePrefix,
         loadScript: loadScript,
         cached: cached,
       };

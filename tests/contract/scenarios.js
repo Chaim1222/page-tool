@@ -51,6 +51,11 @@ const scenarios = [
     wikiTitles: { בסיס: { status: 'found' } },
     failures: { 'wp:revision': { type: 'api', code: 'bad-revision-test' } },
   }),
+  s('source-revision-invalid-field', 'שדה גרסה שאינו מספר: אין בקשה לשרת, נפילה לפריט', {
+    local: { wikitext: wt({ דף: 'בסיס', גרסה: '12\u200E3x', פריט: 'Q1' }) },
+    wikidata: { title: 'בסיס' },
+    wikiTitles: { בסיס: { status: 'found' } },
+  }),
   s('source-both-failure-title', 'כשל גרסה ופריט ונפילה לכותרת', {
     local: { wikitext: wt({ דף: 'בסיס', גרסה: '101', פריט: 'Q1' }) },
     wikiTitles: { בסיס: { status: 'found' } },
@@ -194,6 +199,7 @@ const expectations = {
   'source-revision-valid': { terminal: 'success', delivery: 'render', status: 'found', sourceFailures: [] },
   'source-revision-deleted': { terminal: 'success', delivery: 'render', status: 'found', revidDeletedNotice: true },
   'source-revision-failure-wikidata': { terminal: 'success', delivery: 'render', status: 'found', sourceFailures: ['failureSourceRevision'] },
+  'source-revision-invalid-field': { terminal: 'success', delivery: 'render', status: 'found', sourceFailures: ['failureSourceRevision'] },
   'source-both-failure-title': { terminal: 'success', delivery: 'render', status: 'found', sourceFailures: ['failureSourceRevision', 'failureSourceWikidata'] },
   'baseline-same': { terminal: 'success', delivery: 'render', status: 'found' },
   'baseline-different': { terminal: 'success', delivery: 'render', status: 'renamed', from: 'ישן', title: 'חדש' },
