@@ -497,6 +497,7 @@ function coreStrings() {
     netNotFound: 'notfound',
     netParse: 'parse',
     netStructure: 'structure',
+    revisionFieldInvalid(shown) { return `bad revision field: ${shown}`; },
     netHttpError(code) { return `http ${code}`; },
     netApiError(code) { return `api ${code}`; },
     netUnknown: 'unknown',

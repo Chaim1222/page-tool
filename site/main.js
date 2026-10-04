@@ -96,6 +96,9 @@ mw.loader.using("mediawiki.util").then(function () {
       netNotFound: "הכתובת המבוקשת לא נמצאה.",
       netParse: "התשובה מהשרת אינה ניתנת לפענוח.",
       netStructure: "התשובה מהשרת התקבלה, אך חסר בה מידע צפוי.",
+      revisionFieldInvalid: function (shown) {
+        return "שדה הגרסה בתבנית אינו מספר שלם: «" + shown + "».";
+      },
       netHttpError: function (code) {
         return "השרת החזיר קוד מצב " + code + ".";
       },
