@@ -59,6 +59,46 @@ function assetFailure(id, title, faults, consoleErrors, extraCheck) {
 }
 
 const SCENARIOS = [
+  // שם הדף כבר מעודכן, אבל שדה דף נשאר בשם הישן. אין בקשת העברה.
+  ...['success', 'failure', 'missing', 'correct', 'rule', 'absent', 'conflict', 'merged', 'localized'].map(function (mode) {
+    const localTitle = mode === 'localized' ? 'א-ל' : "אווה וכוביץ'";
+    const wpTitle = mode === 'localized' ? 'אל' : localTitle;
+    const field = mode === 'correct' ? wpTitle : mode === 'rule' ? 'הרב ' + wpTitle : mode === 'absent' ? null : "אווה ווכוביץ'";
+    const result = { status: 'renamed', from: field || 'ישן', title: wpTitle, via: 'גרסה', depth: 0, moveLog: [] };
+    if (mode === 'conflict') result.sourceConflict = { options: [{ key: 'גרסה', title: wpTitle }, { key: 'דף', title: field }] };
+    if (mode === 'merged') Object.assign(result, { status: 'redirect', title: field, target: wpTitle });
+    const offered = ['success', 'failure', 'missing'].includes(mode);
+    return Object.assign(levelA('renamed', {}), {
+      id: 'I-page-field-' + mode,
+      title: 'עדכון שדה דף כשהדף כבר בשם היעד: ' + mode,
+      group: 'אינטראקציה: שדה דף',
+      profile: 'עורך',
+      pageName: localTitle,
+      fixture: { result, ownFields: { דף: field, גרסה: '101', פריט: 'Q1' } },
+      localPages: { [localTitle]: mode === 'missing' ? { content: 'תוכן בלי תבנית' } : { fields: { דף: field, גרסה: '101', פריט: 'Q1' } } },
+      net: { wp: { [field || 'ישן']: { missing: true } } },
+      plans: mode === 'failure' ? { transform: [{ error: 'readonly' }] } : {},
+      start: { check(c) {
+        c.eq(c.labels(), offered ? [c.STR.btnUpdatePageField] : [], 'פעולות מוצעות');
+        c.eq(c.writes().length, 0, 'אין עריכה אוטומטית');
+      } },
+      steps: offered ? [{
+        do: 'click', label: { str: 'btnUpdatePageField' }, name: 'עדכון שדה דף',
+        check(c) {
+          c.ok(c.writes().every(w => w.api === 'edit'), 'אין העברה או כתיבה אחרת');
+          if (mode === 'success') {
+            c.eq(c.writes().length, 1, 'עריכה אחת');
+            c.eq(writeOf(c, 0).title, localTitle, 'עריכת הדף הנוכחי');
+            c.eq(c.env.wiki.get(localTitle).content, '{{מיון ויקיפדיה|דף=' + wpTitle + '|גרסה=101|פריט=Q1}}\nתוכן הערך ' + localTitle + '.', 'שדה דף תוקן ושאר השדות נשמרו');
+            c.eq(c.title(), c.STR.templateUpdatedTitle, 'הצלחת העריכה');
+          } else {
+            c.ok(c.status().includes(mode === 'missing' ? c.STR.templateMissingNoMove : c.STR.templateUpdateFailedNoMove), 'כשל מפורש');
+            c.ok(c.actions().every(a => !a.disabled), 'אפשר לנסות שוב');
+          }
+        },
+      }] : [],
+    });
+  }),
   // ===================================================================
   // פאנל הפרטים: טעינה עצלה, סגירה ופתיחה חוזרת, כשל טעינה
   // ===================================================================
