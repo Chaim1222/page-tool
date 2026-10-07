@@ -1677,6 +1677,16 @@
         if (d.action === "none" || d.action === "manual_review") {
           $moveBtn.remove();
         }
+        var pageField = runtime.getOwnFields()["דף"];
+        if (
+          d.action === "none" && result.status === "renamed" &&
+          !result.sourceConflict && sameTitle(oldname, wpTarget) &&
+          pageField && !sameTitle(toWikipediaTitle(pageField), wpTarget)
+        ) {
+          addAction(rendered, makeAction(STR.btnUpdatePageField, "primary", function (event, sourceCard) {
+            updatePageFieldOnly(target, sourceCard);
+          }));
+        }
         if (d.action === "manual_review") {
           addManualReviewActions(
             rendered,
@@ -2031,24 +2041,7 @@
             return;
           }
           if (error === "selfmove") {
-            setActionStatus(rendered, STR.alreadyAtTarget, "progress");
-            updateTemplatePageField(to)
-              .then(function () {
-                showFinalTargetCard(
-                  "success",
-                  STR.templateUpdatedTitle,
-                  STR.templateUpdatedSelfMove,
-                  null,
-                  null
-                );
-              })
-              .catch(function (err) {
-                if (err && err.code === "template-not-found") {
-                  failAction(rendered, STR.templateMissingNoMove);
-                } else {
-                  failAction(rendered, STR.templateUpdateFailedNoMove, err);
-                }
-              });
+            updatePageFieldOnly(to, rendered);
             return;
           }
           if (error === "redirectexists" && !options.retried) {
@@ -2171,6 +2164,23 @@
         })
         .catch(function (error) {
           failAction(rendered, STR.redirectFailed, error);
+        });
+    }
+
+    // הדף כבר בשם היעד: אותה עריכה, בלי לנסות להעביר אותו לעצמו.
+    function updatePageFieldOnly(to, rendered) {
+      setActionBusy(rendered, true);
+      setActionStatus(rendered, STR.alreadyAtTarget, "progress");
+      return updateTemplatePageField(to)
+        .then(function () {
+          showFinalTargetCard("success", STR.templateUpdatedTitle, STR.templateUpdatedSelfMove, null, null);
+        })
+        .catch(function (err) {
+          if (err && err.code === "template-not-found") {
+            failAction(rendered, STR.templateMissingNoMove);
+          } else {
+            failAction(rendered, STR.templateUpdateFailedNoMove, err);
+          }
         });
     }
 

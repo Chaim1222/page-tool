@@ -18,6 +18,7 @@ function lastRuntime(env) {
 function requiredCapabilities(label, STR) {
   // עריכה ובקשה פתוחות לכל משתמש רשום, ומשתמש לא רשום אינו מריץ את הכלי.
   if (label === STR.btnRetry) return [];
+  if (label === STR.btnUpdatePageField) return [];
   if (label === STR.btnMakeRedirect || label === STR.btnRetargetRedirect) return [];
   if (label === STR.btnRequestMove || label === STR.btnRequestDelete) return [];
   if (label === STR.btnMoveWithRedirect) return [['moveWithRedirect']];

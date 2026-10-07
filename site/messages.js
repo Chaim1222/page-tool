@@ -231,6 +231,7 @@ window.HMK_PAGE_TOOL_MESSAGES = {
   },
   deletedWaitMove: "דף היעד נמחק; ממשיך בהעברה…",
   templateUpdatedTitle: "שדה דף עודכן",
+  btnUpdatePageField: "עדכון שדה דף",
   templateUpdatedSelfMove: "הדף כבר נמצא בשם היעד; שדה דף בתבנית עודכן בהצלחה.",
   templateUpdateFailed: "ההעברה הצליחה, אבל עדכון שדה דף בתבנית נכשל. יש לעדכן אותו ידנית.",
   templateUpdateFailedNoMove: "עדכון שדה דף בתבנית נכשל.",
