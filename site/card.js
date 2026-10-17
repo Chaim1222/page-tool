@@ -851,19 +851,22 @@
         // הדף כבר בשם היעד, אבל שדה דף עדיין שומר שם אחר בוויקיפדיה: אין
         // העברה, ונשאר רק לעדכן את השדה.
         var pageField = runtime.getOwnFields()["דף"];
-        var pageFieldStale = targetIsCurrentPage && !!pageField && !sameTitle(pageField, wpTarget);
+        var pageFieldStale =
+          !sourceConflict && targetIsCurrentPage && !!pageField && !sameTitle(pageField, wpTarget);
         var oldTitleReplaced =
           !merged && !wpOld.failed && wpOld.exists === true && wpOld.redirect === false;
         var action, label, reason;
 
-        if (targetIsCurrentPage) {
+        // סתירה בין המקורות קודמת לכל הכרעה: עד שהמשתמש בוחר מקור אין פעולה,
+        // גם כשאחד המקורות מוביל לשם הנוכחי של הדף.
+        if (sourceConflict) {
+          action = "manual_review"; label = STR.manualReview; reason = STR.sourceConflictReason;
+        } else if (targetIsCurrentPage) {
           action = "none";
           label = pageFieldStale ? STR.btnUpdatePageField : STR.noActionNeeded;
           reason = STR.targetCurrentReason;
         } else if (targetStatus === "unchecked") {
           action = "manual_review"; label = STR.manualReview; reason = STR.targetStatusUnknownReason;
-        } else if (sourceConflict) {
-          action = "manual_review"; label = STR.manualReview; reason = STR.sourceConflictReason;
         } else if (merged) {
           // ערך שמוזג אינו מועבר: אם הערך המאחד קיים במכלול, הדף הופך
           // להפניה אליו; אחרת בדיקה ידנית.

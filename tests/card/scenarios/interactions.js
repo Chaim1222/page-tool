@@ -1324,6 +1324,60 @@ const SCENARIOS = [
     ],
   },
 
+  {
+    level: 'A',
+    id: 'I-source-conflict-page-field',
+    title: 'סתירה שבה הגרסה מובילה לשם הנוכחי של הדף: אין פעולה עד הבחירה, ואחריה עדכון שם הדף בתבנית',
+    group: 'אינטראקציה: ניסיון חוזר',
+    profile: 'מפעיל',
+    recordWiki: true,
+    fixture: {
+      ownFields: RESULTS['renamed-to-current'].fields,
+      runs: [
+        {
+          result: Object.assign({}, RESULTS['renamed-to-current'].result, {
+            sourceConflict: {
+              options: [
+                { key: 'גרסה', title: PAGE },
+                { key: 'דף', title: 'ישן' },
+              ],
+            },
+          }),
+        },
+        { result: RESULTS['renamed-to-current'].result },
+      ],
+    },
+    localPages: { [PAGE]: { fields: RESULTS['renamed-to-current'].fields } },
+    net: { wp: { 'ישן': {} } },
+    start: {
+      check(c) {
+        c.eq(c.labels(), [], 'אין פעולה לפני בחירת מקור');
+        c.ok((c.text('#hmk-tool .hmk-carddecision') || '').indexOf(c.STR.sourceConflictReason) !== -1, 'הסבר הסתירה');
+      },
+    },
+    steps: [
+      {
+        do: 'toggle',
+        label: { str: 'sourceChoice', args: ['גרסה', PAGE] },
+        name: 'בחירת-גרסה',
+        check(c) {
+          c.eq(c.env.log.runs[1].preferred, 'גרסה', 'לפי המקור שנבחר');
+          c.eq(c.labels(), [c.STR.btnUpdatePageField], 'עדכון שם הדף בתבנית');
+        },
+      },
+      {
+        do: 'click',
+        label: { str: 'btnUpdatePageField' },
+        name: 'עדכון-השדה',
+        check(c) {
+          c.eq(c.writes().map((w) => w.api + ':' + w.title), ['edit:' + PAGE], 'עריכה אחת של הדף, בלי העברה');
+          c.ok(/דף=מקומי/.test(writeOf(c, 0).params.text), 'שם הדף בתבנית עודכן');
+          c.eq(c.title(), c.STR.templateUpdatedTitle, 'כרטיס הסיום');
+        },
+      },
+    ],
+  },
+
   Object.assign(levelA('deleted', {}), {
     id: 'I-deleted-reason-parse-failure',
     title: 'עיבוד סיבת המחיקה נכשל: הסיבה הגולמית וציון שהעיבוד נכשל',
