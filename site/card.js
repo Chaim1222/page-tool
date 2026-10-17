@@ -848,16 +848,25 @@
         var targetSameIdentity = !!targetIdentity && targetIdentity.verdict === "same";
         // השם הישן בוויקיפדיה תפוס כעת בערך אמיתי (לא הפניה), כלומר נוצר שם
         // ערך חדש. הדף הנוכחי צריך לקבל את התוכן החדש ולא להפוך להפניה.
+        // הדף כבר בשם היעד, אבל שדה דף עדיין שומר שם אחר בוויקיפדיה: אין
+        // העברה, ונשאר רק לעדכן את השדה.
+        var pageField = runtime.getOwnFields()["דף"];
+        var pageFieldStale =
+          !sourceConflict && targetIsCurrentPage && !!pageField && !sameTitle(pageField, wpTarget);
         var oldTitleReplaced =
           !merged && !wpOld.failed && wpOld.exists === true && wpOld.redirect === false;
         var action, label, reason;
 
-        if (targetIsCurrentPage) {
-          action = "none"; label = STR.noActionNeeded; reason = STR.targetCurrentReason;
+        // סתירה בין המקורות קודמת לכל הכרעה: עד שהמשתמש בוחר מקור אין פעולה,
+        // גם כשאחד המקורות מוביל לשם הנוכחי של הדף.
+        if (sourceConflict) {
+          action = "manual_review"; label = STR.manualReview; reason = STR.sourceConflictReason;
+        } else if (targetIsCurrentPage) {
+          action = "none";
+          label = pageFieldStale ? STR.btnUpdatePageField : STR.noActionNeeded;
+          reason = STR.targetCurrentReason;
         } else if (targetStatus === "unchecked") {
           action = "manual_review"; label = STR.manualReview; reason = STR.targetStatusUnknownReason;
-        } else if (sourceConflict) {
-          action = "manual_review"; label = STR.manualReview; reason = STR.sourceConflictReason;
         } else if (merged) {
           // ערך שמוזג אינו מועבר: אם הערך המאחד קיים במכלול, הדף הופך
           // להפניה אליו; אחרת בדיקה ידנית.
@@ -897,6 +906,7 @@
           targetIdentity: targetIdentity,
           targetSameIdentity: targetSameIdentity,
           targetIsCurrentPage: targetIsCurrentPage,
+          pageFieldStale: pageFieldStale,
           merged: !!merged,
           oldTitleReplaced: oldTitleReplaced,
           sourceConflict: !!sourceConflict,
@@ -1547,7 +1557,9 @@
       function moveLabel() {
         if (!checklist) return STR.btnMove;
         if (checklist.action === "make_redirect") return STR.btnMakeRedirect;
-        if (checklist.action === "none") return STR.noActionNeeded;
+        if (checklist.action === "none") {
+          return checklist.pageFieldStale ? STR.btnUpdatePageField : STR.noActionNeeded;
+        }
         if (checklist.action === "manual_review") return STR.manualReview;
         var s = currentSuppress();
         if (!canMove(!!s)) return STR.btnRequestMove;
@@ -1573,6 +1585,10 @@
             setActionStatus(sourceCard, STR.loadingFacts, "progress");
             checklistPromise
               .then(function (d) {
+                if (d.action === "none" && d.pageFieldStale) {
+                  updatePageFieldOnly(target, sourceCard);
+                  return;
+                }
                 if (d.action === "none" || d.action === "manual_review") {
                   clearActionState(sourceCard);
                   return;
@@ -1674,7 +1690,7 @@
         checklist = d;
         applyLocalLinkStatus($targetLink, target, d.target, redirectTo);
         refreshMoveBtn();
-        if (d.action === "none" || d.action === "manual_review") {
+        if ((d.action === "none" && !d.pageFieldStale) || d.action === "manual_review") {
           $moveBtn.remove();
         }
         if (d.action === "manual_review") {
@@ -2031,24 +2047,7 @@
             return;
           }
           if (error === "selfmove") {
-            setActionStatus(rendered, STR.alreadyAtTarget, "progress");
-            updateTemplatePageField(to)
-              .then(function () {
-                showFinalTargetCard(
-                  "success",
-                  STR.templateUpdatedTitle,
-                  STR.templateUpdatedSelfMove,
-                  null,
-                  null
-                );
-              })
-              .catch(function (err) {
-                if (err && err.code === "template-not-found") {
-                  failAction(rendered, STR.templateMissingNoMove);
-                } else {
-                  failAction(rendered, STR.templateUpdateFailedNoMove, err);
-                }
-              });
+            updatePageFieldOnly(to, rendered);
             return;
           }
           if (error === "redirectexists" && !options.retried) {
@@ -2171,6 +2170,29 @@
         })
         .catch(function (error) {
           failAction(rendered, STR.redirectFailed, error);
+        });
+    }
+
+    // הדף כבר בשם היעד: בלי העברה, רק עדכון שדה דף.
+    function updatePageFieldOnly(to, rendered) {
+      setActionBusy(rendered, true);
+      setActionStatus(rendered, STR.alreadyAtTarget, "progress");
+      updateTemplatePageField(to)
+        .then(function () {
+          showFinalTargetCard(
+            "success",
+            STR.templateUpdatedTitle,
+            STR.templateUpdatedSelfMove,
+            null,
+            null
+          );
+        })
+        .catch(function (err) {
+          if (err && err.code === "template-not-found") {
+            failAction(rendered, STR.templateMissingNoMove);
+          } else {
+            failAction(rendered, STR.templateUpdateFailedNoMove, err);
+          }
         });
     }
 

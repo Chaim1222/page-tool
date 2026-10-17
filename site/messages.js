@@ -46,6 +46,7 @@ window.HMK_PAGE_TOOL_MESSAGES = {
   btnMoveNoRedirect: "העברה בלי הפניה",
   btnMakeRedirect: "הפיכה להפניה",
   noActionNeeded: "אין צורך בפעולה",
+  btnUpdatePageField: "עדכון שם הדף בתבנית מיון ויקיפדיה",
   manualReview: "בדיקה ידנית לפני פעולה",
   alreadyHandledTitle: "השינוי כבר טופל",
   alreadyHandledBody: "מזהה הגרסה מצביע על הפניה ישנה, אבל יעד ההפניה כבר זהה לשדה דף בתבנית. אין שינוי חדש לטיפול.",
