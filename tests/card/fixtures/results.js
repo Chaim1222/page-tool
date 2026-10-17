@@ -162,6 +162,22 @@ const RESULTS = {
     },
   },
   // הפניה בוויקיפדיה שמצביעה אל הדף הנוכחי עצמו: אין מה לעשות.
+  // הדף כבר בשם החדש במכלול, אבל שדה דף עדיין שומר את השם הישן.
+  'renamed-to-current': {
+    fields: { דף: 'ישן', גרסה: '101', פריט: 'Q1' },
+    target: PAGE,
+    result: {
+      from: 'ישן',
+      moveLog: [],
+      page: wpPage(PAGE),
+      revid: '101',
+      status: 'renamed',
+      targetIsDisambig: false,
+      title: PAGE,
+      via: 'גרסה',
+    },
+  },
+
   'redirect-to-current': {
     fields: { פריט: 'Q1' },
     target: PAGE,

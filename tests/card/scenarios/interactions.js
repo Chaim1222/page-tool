@@ -435,6 +435,52 @@ const SCENARIOS = [
     ],
   }),
 
+  card('renamed-to-current', null, {
+    id: 'I-move-page-field-stale',
+    title: 'הדף כבר בשם החדש ושדה דף ישן: עדכון השדה בלבד, בלי העברה',
+    group: 'אינטראקציה: העברה',
+    profile: 'מפעיל',
+    net: { wp: { 'ישן': { missing: true } } },
+    recordWiki: true,
+    start: {
+      check(c) {
+        c.eq(c.labels(), [c.STR.btnUpdatePageField], 'כפתור עדכון השדה');
+        c.ok((c.text('#hmk-tool .hmk-carddecision') || '').indexOf(c.STR.btnUpdatePageField) !== -1, 'שורת ההכרעה');
+      },
+    },
+    steps: [
+      {
+        do: 'click',
+        label: { str: 'btnUpdatePageField' },
+        name: 'עדכון-השדה',
+        check(c) {
+          c.eq(c.writes().map((w) => w.api + ':' + w.title), ['edit:' + PAGE], 'עריכה אחת של הדף, בלי העברה');
+          c.eq(writeOf(c, 0).outcome, 'ok', 'העריכה נשמרה');
+          c.ok(/דף=מקומי/.test(writeOf(c, 0).params.text) && !/דף=ישן/.test(writeOf(c, 0).params.text), 'שדה דף עודכן לשם החדש');
+          c.eq(c.title(), c.STR.templateUpdatedTitle, 'כרטיס הסיום');
+        },
+      },
+    ],
+  }),
+
+  card('renamed-to-current', null, {
+    id: 'I-move-page-field-current',
+    title: 'הדף כבר בשם החדש ושדה דף כבר עודכן: אין פעולה',
+    group: 'אינטראקציה: העברה',
+    profile: 'מפעיל',
+    fixture: Object.assign({}, levelA('renamed-to-current').fixture, {
+      ownFields: { דף: PAGE, גרסה: '101', פריט: 'Q1' },
+    }),
+    currentPage: { fields: { דף: PAGE, גרסה: '101', פריט: 'Q1' } },
+    net: { wp: { 'ישן': { missing: true } } },
+    start: {
+      check(c) {
+        c.eq(c.labels(), [], 'אין פעולות');
+      },
+    },
+    steps: [],
+  }),
+
   card('renamed', 'no-redirect', {
     id: 'I-move-articleexists-same-identity',
     title: 'יעד תפוס שהוא אותו ערך: הצעה להפוך את הדף להפניה',
